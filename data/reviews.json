@@ -1,0 +1,27 @@
+[
+  {
+    "source": "Google Reviews",
+    "rating": 4.9,
+    "author": "Anita M.",
+    "date": "2025-07-18",
+    "text": "Spectacular stay! The Robusta room fit our family perfectly and the staff helped us plan a fishing afternoon on-site.",
+    "link": "https://maps.google.com/?cid=homestay"
+  },
+  {
+    "source": "Airbnb",
+    "rating": 4.8,
+    "author": "Rahul P.",
+    "date": "2025-06-01",
+    "text": "Booked the entire villa for the weekend—spotless interiors and the admin confirmed our booking within minutes.",
+    "link": "https://www.airbnb.com"
+  },
+  {
+    "source": "Booking.com",
+    "rating": 4.7,
+    "author": "Lena K.",
+    "date": "2025-05-20",
+    "text": "Excelsa had the dreamiest view. Loved the curated activities, especially the off-road safari add-on.",
+    "link": "https://www.booking.com"
+  }
+]
+

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Prevent cached expired sessions -->
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anudina Kuteera | Admin Console</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body class="admin-page">
+
+    <!-- Custom cursor elements -->
+    <div class="cursor pointer-dot"></div>
+    <div class="cursor pointer-glow"></div>
+    <div class="cursor pointer-trail"></div>
+
+    <!-- Header -->
+    <header class="hero admin-hero">
+        <nav class="nav">
+            <div class="logo">Anudina Kuteera</div>
+            <ul>
+                <li><a href="index.html#rooms">Rooms</a></li>
+                <li><a href="index.html#booking">Booking</a></li>
+                <li><a href="index.html#activities">Activities</a></li>
+                <li><a href="reviews.html">Reviews</a></li>
+            </ul>
+        </nav>
+
+        <div class="hero-content">
+            <div>
+                <p class="eyebrow">Admin Console</p>
+                <h1>Secure control room for pricing, blocks & bookings.</h1>
+                <p class="lead">
+                    Enter the unique PIN to update tariffs, block rooms, and confirm guest payments.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="admin-main">
+
+        <!-- AUTH CARD -->
+        <section class="admin-auth" id="adminAuthCard">
+            <h3>Unlock console</h3>
+
+            <form id="adminAuthForm" autocomplete="off">
+                <label for="adminPin">
+                    Enter admin PIN
+                    <input
+                        type="password"
+                        id="adminPin"
+                        placeholder="••••"
+                        minlength="4"
+                        required
+                        inputmode="numeric"
+                    >
+                </label>
+
+                <button type="submit" class="btn primary block">
+                    Access dashboard
+                </button>
+
+                <small>PIN-protected with server validation.</small>
+            </form>
+        </section>
+
+        <!-- ADMIN PANELS -->
+        <section id="adminPanels" class="hidden" aria-hidden="true">
+
+            <div class="admin-grid">
+
+                <!-- PRICING -->
+                <form id="pricingForm">
+                    <h3>Seasonal pricing</h3>
+
+                    <div class="grid two">
+                        <label>Robusta <input type="number" name="robusta" required></label>
+                        <label>Arabica <input type="number" name="arabica" required></label>
+                        <label>Excelsa <input type="number" name="excelsa" required></label>
+                        <label>Liberica <input type="number" name="liberica" required></label>
+                    </div>
+
+                    <div class="grid three">
+                        <label>Ground floor <input type="number" name="ground" required></label>
+                        <label>Top floor <input type="number" name="top" required></label>
+                        <label>Entire villa <input type="number" name="villa" required></label>
+                    </div>
+
+                    <button class="btn primary block" type="submit">
+                        Save pricing
+                    </button>
+
+                    <!-- Overrides -->
+                    <div class="seasonal-overrides">
+                        <h4>Date-specific overrides</h4>
+                        <p>Set custom prices for particular dates.</p>
+
+                        <div class="override-form">
+                            <label>
+                                Choose target
+                                <select id="overrideTarget">
+                                    <optgroup label="Rooms">
+                                        <option value="room:robusta">Room · Robusta</option>
+                                        <option value="room:arabica">Room · Arabica</option>
+                                        <option value="room:excelsa">Room · Excelsa</option>
+                                        <option value="room:liberica">Room · Liberica</option>
+                                    </optgroup>
+                                    <optgroup label="Floors">
+                                        <option value="floor:ground">Floor · Ground</option>
+                                        <option value="floor:top">Floor · Top</option>
+                                    </optgroup>
+                                    <optgroup label="Villa">
+                                        <option value="villa:villa">Entire villa</option>
+                                    </optgroup>
+                                </select>
+                            </label>
+
+                            <label>
+                                Effective date
+                                <input type="date" id="overrideDate">
+                            </label>
+
+                            <label>
+                                Override price
+                                <input type="number" id="overridePrice" min="0" step="100">
+                            </label>
+
+                            <button type="button" class="btn ghost" id="addOverrideBtn">
+                                Add override
+                            </button>
+                        </div>
+
+                        <div id="overrideList" class="override-list"></div>
+                    </div>
+                </form>
+
+                <!-- BLOCKING -->
+                <form id="blockForm">
+                    <h3>Block rooms / dates</h3>
+
+                    <label>
+                        Target
+                        <select name="targetType" required>
+                            <option value="room">Room</option>
+                            <option value="floor">Floor</option>
+                            <option value="villa">Entire Villa</option>
+                        </select>
+                    </label>
+
+                    <label class="conditional" data-for="room">
+                        Select room
+                        <select name="roomId">
+                            <option value="robusta">Robusta</option>
+                            <option value="arabica">Arabica</option>
+                            <option value="excelsa">Excelsa</option>
+                            <option value="liberica">Liberica</option>
+                        </select>
+                    </label>
+
+                    <label class="conditional hidden" data-for="floor">
+                        Select floor
+                        <select name="floorId">
+                            <option value="ground">Ground</option>
+                            <option value="top">Top</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Start date
+                        <input type="date" name="startDate" required>
+                    </label>
+
+                    <label>
+                        End date
+                        <input type="date" name="endDate" required>
+                    </label>
+
+                    <button class="btn ghost block" type="submit">
+                        Add block
+                    </button>
+                </form>
+
+                <!-- CALENDAR -->
+                <div class="block-calendar-panel">
+                    <h3>Blocked dates calendar</h3>
+                    <div id="blockCalendar"></div>
+                </div>
+
+                <!-- GALLERY -->
+                <form id="galleryForm">
+                    <h3>Interior gallery</h3>
+                    <p>Provide up to 4 image URLs.</p>
+                    <div class="gallery-inputs"></div>
+                    <button class="btn primary block" type="submit">
+                        Update gallery
+                    </button>
+                </form>
+            </div>
+
+            <!-- BOOKINGS -->
+            <div class="admin-bookings">
+                <h3>Booking queue</h3>
+                <div id="bookingTable"></div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; <span id="year"></span> Anudina Kuteera. Internal console.</p>
+    </footer>
+
+    <!-- JS -->
+    <script src="./admin.js" type="module" defer></script>
+</body>
+</html>
