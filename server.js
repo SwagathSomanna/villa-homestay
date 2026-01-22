@@ -13,15 +13,15 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-dotenv.config();
-
 import paymentRoutes from "./routes/payment.js";
 import connectDb from "./db.js";
+import connectDB from "./db.js";
 
 const app = express();
 const PORT = 4000;
 const DATA_PATH = path.join(__dirname, "data", "state.json");
 
+dotenv.config();
 app.use(express.json({ limit: "128kb" }));
 
 app.use(
@@ -31,7 +31,7 @@ app.use(
   }),
 );
 
-/* ---------------- SESSION ---------------- */
+//session
 app.use(
   session({
     name: "admin.sid",
@@ -47,6 +47,12 @@ app.use(
     },
   }),
 );
+
+connectDB().then(() => {
+  app.listen(process.env.PORT || PORT, () => {
+    console.log("server is running at port", process.env.PORT || PORT);
+  });
+});
 
 /* ---------------- HELPERS ---------------- */
 async function readState() {
@@ -115,6 +121,6 @@ app.use("/api", (req, res) => {
 /* ---------------- STATIC ---------------- */
 app.use(express.static(path.join(__dirname, "public")));
 
-app.listen(PORT, () => {
-  console.log(` Server running at http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(` Server running at http://localhost:${PORT}`);
+// });

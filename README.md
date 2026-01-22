@@ -20,18 +20,6 @@ npm install
 npm run dev            # or npm start for production
 ```
 
-Create an `.env` file (optional) with:
-
-```
-PORT=4000
-SMTP_HOST=smtp.yourprovider.com
-SMTP_PORT=587
-SMTP_USER=hello@example.com
-SMTP_PASS=app_password
-SMTP_FROM="Wildberry Haven <hello@example.com>"
-ADMIN_EMAIL=owner@example.com
-```
-
 ## Frontend Highlights
 
 - Guest login card saves name/email before booking.
