@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Standalone recreation of the Rooms page with booking and admin backend",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js"

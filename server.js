@@ -1,21 +1,32 @@
-const express = require("express");
-const session = require("express-session");
-const cors = require("cors");
-const fs = require("fs/promises");
-const path = require("path");
-const crypto = require("crypto");
+import express from "express";
+import session from "express-session";
+import cors from "cors";
+import fs from "fs/promises";
+import path from "path";
+import crypto from "crypto";
+import dotenv from "dotenv";
 
-const paymentRoutes = require("./routes/payment");
+//specific to esm
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config();
+
+import paymentRoutes from "./routes/payment.js";
+import connectDb from "./db.js";
 
 const app = express();
 const PORT = 4000;
 const DATA_PATH = path.join(__dirname, "data", "state.json");
 
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "128kb" }));
 
 app.use(
   cors({
-    origin: "http://localhost:4000",
+    origin: process.env.CORS_ORIGIN || "http://localhost:4000",
     credentials: true,
   }),
 );
