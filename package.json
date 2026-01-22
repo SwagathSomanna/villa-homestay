@@ -15,8 +15,10 @@
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
     "dotenv": "^17.2.3",
-    "express": "^4.19.2",
+    "express": "^4.22.1",
     "express-session": "^1.18.2",
+    "mongodb": "^7.0.0",
+    "mongoose": "^9.1.5",
     "nodemailer": "^6.9.11",
     "uuid": "^11.0.2"
   },
