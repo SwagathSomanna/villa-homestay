@@ -1,4 +1,4 @@
-//design flaw | redundant code
+//design flaw | redundant code, keepsake
 
 import mongoose, { Schema } from "mongoose";
 

@@ -37,9 +37,16 @@ connectDB().then(() => {
   });
 });
 
-//run the seed script
+//run the seed script | not using env variable.
 import addInitialPrices from "./utils/seed.js";
 addInitialPrices();
+
+//routes
+import bookingRouter from "./routes/booking.route.js";
+
+app.use("/api/booking", bookingRouter);
+
+//////////////////////////////////////////////////
 
 //session
 app.use(
