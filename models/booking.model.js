@@ -1,27 +1,30 @@
 import mongoose from "mongoose";
-
 const { Schema } = mongoose;
 
-const bookingSchema = new Schema({
-  targetType: {
-    type: String,
-    enum: ["villa", "floor", "room"],
-    required: true,
+const bookingSchema = new Schema(
+  {
+    guest: {
+      name: String,
+      email: String,
+      phone: String,
+      adults: Number,
+      children: Number,
+    },
+
+    accessToken: { type: String, required: true },
+
+    targetType: { type: String, enum: ["villa", "floor", "room"] },
+    floorId: String,
+    roomId: String,
+
+    checkIn: Date,
+    checkOut: Date,
+
+    status: { type: String, enum: ["pending", "paid", "cancelled", "blocked"] },
+
+    paymentId: String,
   },
-
-  floorId: { type: String }, // only if targetType = "floor" or "room"
-  roomId: { type: String }, // only if targetType = "room"
-
-  checkIn: { type: Date, required: true },
-  checkOut: { type: Date, required: true },
-
-  status: {
-    type: String,
-    enum: ["pending", "paid", "cancelled", "blocked"],
-    default: "pending",
-  },
-
-  createdAt: { type: Date, default: Date.now },
-});
+  { timestamps: true },
+);
 
 export const Booking = mongoose.model("booking", bookingSchema);

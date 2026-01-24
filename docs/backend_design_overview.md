@@ -14,3 +14,26 @@
 - remodelling of the frontend to fit these.
 
 ---
+
+- 1 villa 4 rooms.
+- add on activites only display, no payment.
+- Ground floor: 9k
+- top floor: 8k
+
+---
+
+**trackign the user**
+
+- generate a random token at booking time
+- store it in db
+- send link with token in email
+
+```
+https://yourvilla.com/manage-booking?id=VILLA-9F3A21&token=abc123
+```
+
+when user opens, backend can be verified by
+
+```
+find booking where _id = id AND accessToken = token
+```
