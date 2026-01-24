@@ -13,16 +13,16 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-import paymentRoutes from "./routes/payment.js";
-import connectDb from "./db.js";
+import { PORT } from "./constants.js";
 import connectDB from "./db.js";
+import paymentRoutes from "./routes/payment.js";
 
 const app = express();
-const PORT = 4000;
 const DATA_PATH = path.join(__dirname, "data", "state.json");
 
 dotenv.config();
 app.use(express.json({ limit: "128kb" }));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   cors({
@@ -30,6 +30,16 @@ app.use(
     credentials: true,
   }),
 );
+
+connectDB().then(() => {
+  app.listen(process.env.PORT || PORT, () => {
+    console.log("server is running at port", process.env.PORT || PORT);
+  });
+});
+
+//run the seed script
+import addInitialPrices from "./utils/seed.js";
+addInitialPrices();
 
 //session
 app.use(
@@ -47,12 +57,6 @@ app.use(
     },
   }),
 );
-
-connectDB().then(() => {
-  app.listen(process.env.PORT || PORT, () => {
-    console.log("server is running at port", process.env.PORT || PORT);
-  });
-});
 
 /* ---------------- HELPERS ---------------- */
 async function readState() {
@@ -117,10 +121,3 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api", (req, res) => {
   res.status(404).json({ error: "API_NOT_FOUND" });
 });
-
-/* ---------------- STATIC ---------------- */
-app.use(express.static(path.join(__dirname, "public")));
-
-// app.listen(PORT, () => {
-//   console.log(` Server running at http://localhost:${PORT}`);
-// });
