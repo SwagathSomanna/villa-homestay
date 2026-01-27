@@ -23,7 +23,7 @@ npm run dev            # or npm start for production
 ## Frontend Highlights
 
 - Guest login card saves name/email before booking.
-- Booking widget enforces 2-month check-in window, guest caps, and computes totals + 25% deposit.
+- Booking widget enforces 2-month check-in window, guest caps, and computes totals + 50% deposit.
 - Selection for single rooms, floors (ground/top), or entire villa; includes activities pricing.
 - Payment section includes QR code, 25% notice, and refund policy.
 - Admin console (PIN `2025`) adjusts pricing, blocks dates, updates the 4-image interior gallery,
