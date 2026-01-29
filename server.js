@@ -49,21 +49,21 @@ app.use("/api/booking", bookingRouter);
 //////////////////////////////////////////////////
 
 //session
-app.use(
-  session({
-    name: "admin.sid",
-    secret: "villa-admin-secret",
-    resave: false,
-    saveUninitialized: false,
-    rolling: true,
-    cookie: {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 30 * 60 * 1000,
-    },
-  }),
-);
+// app.use(
+//   session({
+//     name: "admin.sid",
+//     secret: "villa-admin-secret",
+//     resave: false,
+//     saveUninitialized: false,
+//     rolling: true,
+//     cookie: {
+//       httpOnly: true,
+//       secure: false,
+//       sameSite: "lax",
+//       maxAge: 30 * 60 * 1000,
+//     },
+//   }),
+// );
 
 /* ---------------- HELPERS ---------------- */
 async function readState() {

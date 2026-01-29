@@ -4,9 +4,12 @@ const { Schema } = mongoose;
 const bookingSchema = new Schema(
   {
     guest: {
-      name: String,
-      email: String,
-      phone: String,
+      name: {
+        type: String,
+        required: true,
+      },
+      email: { type: String, required: true },
+      phone: { type: String, required: true },
       adults: Number,
       children: Number,
     },

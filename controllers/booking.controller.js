@@ -1,6 +1,6 @@
 import { Booking } from "../models/booking.model.js";
 import crypto from "crypto";
-import { VILLA_NAME, TARGET_TYPE } from "../constants.js";
+import { TARGET_TYPE } from "../constants.js";
 
 //this is done so that all checks are done only on date basis
 function parseDateOnly(str) {
@@ -14,7 +14,8 @@ function parseDateOnly(str) {
 // 3. If anything gets booked, villa(whole) cant be booked.
 // 4. If any of the rooms in a particular floor are booked, complete floor cant be booked(the other room can)
 
-async function verifyRoomStatus(roomInfo) {
+async function verifyRoomStatus(roomInfo, res) {
+  console.log(roomInfo.targetType, TARGET_TYPE.includes(roomInfo.targetType));
   if (!roomInfo.targetType || !TARGET_TYPE.includes(roomInfo.targetType)) {
     res.status(400).json({ message: "Please select a valid entry " });
     return 0;
@@ -109,25 +110,26 @@ async function verifyRoomStatus(roomInfo) {
 
   //check for rooms
   if (roomInfo.targetType === "room") {
-    roomInfo.roomId == "R1" || roomInfo.roomId == "R2"
-      ? (curFloorId = "F1")
-      : (curFloorId = "F2");
-  }
-  //check if that floor is booked on that particular room is booked
-  const overLappingBookings = await Booking.find({
-    checkIn: { $lt: roomInfo.checkOut },
-    checkOut: { $gt: roomInfo.checkIn },
-    $or: [
-      { targetType: "floor", floorId: curFloorId },
-      { targetType: "room", roomId: roomInfo.roomId },
-    ],
-  });
+    const curFloorId =
+      roomInfo.roomId == "R1" || roomInfo.roomId == "R2" ? "F1" : "F2";
+    //check if that floor is booked on that particular room is booked
+    const overLappingBookings = await Booking.find({
+      checkIn: { $lt: roomInfo.checkOut },
+      checkOut: { $gt: roomInfo.checkIn },
+      $or: [
+        { targetType: "floor", floorId: curFloorId },
+        { targetType: "room", roomId: roomInfo.roomId },
+      ],
+    });
 
-  if (overLappingBookings.length > 0) {
-    res
-      .status(400)
-      .json({ message: "Rooms not avaibable for the selected Dates." });
+    if (overLappingBookings.length > 0) {
+      res
+        .status(400)
+        .json({ message: "Rooms not avaibable for the selected Dates." });
+      return 0;
+    }
   }
+  return 1;
 }
 
 export const bookVilla = async (req, res) => {
@@ -138,7 +140,6 @@ export const bookVilla = async (req, res) => {
     const checkOut = parseDateOnly(req.body.checkOut);
     const today = parseDateOnly(new Date().toISOString().slice(0, 10));
 
-    const targetType = req.body.targetType;
     if (checkIn >= checkOut) {
       // validations
       return res
@@ -150,19 +151,71 @@ export const bookVilla = async (req, res) => {
       return res.status(400).json({ message: "Please select a future date" });
     }
 
+    //verification of adults and children yet to be done
+    const guestInfo = req.body.guest;
+    if (!guestInfo?.name || !guestInfo?.email || !guestInfo?.phone) {
+      return res
+        .status(500)
+        .json({ message: "Please fill all the required fields" });
+    }
+
+    if (Number.isNaN(guestInfo.adults) || Number.isNaN(guestInfo.children)) {
+      return res.status(400).json({ message: "Invalid guest count" });
+    }
+
     //room availability validations
     const roomInfo = {
       checkIn: checkIn,
       checkOut: checkOut,
       floorId: Number(req.body?.floorId),
       roomId: Number(req.body?.roomId),
+      targetType: req.body?.targetType,
     };
 
-    return res.status(201).json({ message: "Booking successful" });
+    console.log("functoin called reached bookvill");
+    const isBookingAvailable = await verifyRoomStatus(roomInfo, res);
+    if (!isBookingAvailable) {
+      return null;
+    }
+
+    const createBooking = await Booking.create({
+      guest: {
+        ...guestInfo,
+      },
+      accessToken: accessToken,
+      targetType: req.body.targetType,
+      floorId: req.body?.floorId,
+      roomId: req.bodu?.roomId,
+
+      checkIn: checkIn,
+      checkOut: checkOut,
+    });
+
+    const createdBooking = await Booking.findById(createBooking._id);
+    if (!createdBooking) {
+      return res
+        .status(500)
+        .json({ message: "Something went wrong while boooking" });
+    }
+
+    console.log(createdBooking);
+
+    return res.status(201).json({
+      message: "Booking successful",
+      data: {
+        name: createdBooking.guest?.name,
+        email: createdBooking.guest?.email,
+        phone: createdBooking.guest?.phone,
+        checkIn: createdBooking.checkIn,
+        checkOut: createdBooking.checkOut,
+        accessToken: createdBooking.accessToken,
+        bookingType: createdBooking.targetType,
+        floorId: createdBooking?.floorId,
+        roomId: createdBooking?.roomId,
+      },
+    });
   } catch (error) {
-    console.log(error.message);
+    console.log(error);
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
-
-export const checkAvailability = async (req, res) => {};
