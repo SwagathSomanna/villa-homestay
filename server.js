@@ -15,7 +15,6 @@ const __dirname = dirname(__filename);
 
 import { PORT } from "./constants.js";
 import connectDB from "./db.js";
-import paymentRoutes from "./routes/payment.js";
 
 const app = express();
 const DATA_PATH = path.join(__dirname, "data", "state.json");
@@ -122,9 +121,9 @@ app.post("/api/bookings", async (req, res) => {
 });
 
 /* ---------------- PAYMENTS ---------------- */
-app.use("/api/payments", paymentRoutes);
-
-/* ---------------- API SAFETY ---------------- */
-app.use("/api", (req, res) => {
-  res.status(404).json({ error: "API_NOT_FOUND" });
-});
+// app.use("/api/payments", paymentRoutes);
+//
+// /* ---------------- API SAFETY ---------------- */
+// app.use("/api", (req, res) => {
+//   res.status(404).json({ error: "API_NOT_FOUND" });
+// });

@@ -70,16 +70,16 @@ invalid
 
 {
   "guest": {
-    "name": "Bad Payment",
+    "name": "bad payment",
     "email": "badpay@example.com",
     "phone": "6666666666",
     "adults": 2
   },
-  "accessToken": "invalid-pay-005",
-  "paymentId": 12345,
-  "targetType": "floor",
-  "floorId": "F1",
-  "checkIn": "2026-04-01T12:00:00.000Z",
-  "checkOut": "2026-04-02T11:00:00.000Z"
+  "accesstoken": "invalid-pay-005",
+  "paymentid": 12345,
+  "targettype": "floor",
+  "floorid": "f1",
+  "checkin": "2026-04-01t12:00:00.000z",
+  "checkout": "2026-04-02t11:00:00.000z"
 }
 

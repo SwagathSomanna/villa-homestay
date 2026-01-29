@@ -213,6 +213,7 @@ export const bookVilla = async (req, res) => {
         bookingType: createdBooking.targetType,
         floorId: createdBooking?.floorId,
         roomId: createdBooking?.roomId,
+        status: pending,
       },
     });
   } catch (error) {
