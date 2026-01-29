@@ -1,4 +1,5 @@
 import { Booking } from "../models/booking.model.js";
+import { Villa } from "../models/villa.model.js";
 import crypto from "crypto";
 import { TARGET_TYPE } from "../constants.js";
 
@@ -22,9 +23,11 @@ async function verifyRoomStatus(roomInfo, res) {
   }
 
   if (roomInfo.targetType === "floor") {
-    const floorSelection = await Booking.findOne({
-      targetType: "floor",
-      floodId: roomInfo?.floorId,
+    if (!roomInfo.floorId) {
+      return res.status(400).json({ message: "please select a valid floor" });
+    }
+    const floorSelection = await Villa.findOne({
+      "floors.floorId": roomInfo?.floorId,
     });
 
     if (!floorSelection) {
@@ -34,9 +37,12 @@ async function verifyRoomStatus(roomInfo, res) {
   }
 
   if (roomInfo.targetType === "room") {
-    const roomSelection = await Booking.findOne({
-      targetType: "room",
-      floorId: roomInfo?.roomId,
+    if (!roomInfo.roomId) {
+      res.status(400).json({ message: "please select a valid room" });
+      return 0;
+    }
+    const roomSelection = await Villa.findOne({
+      "floors.rooms.roomId": roomInfo?.roomId,
     });
 
     if (!roomSelection) {
@@ -49,7 +55,8 @@ async function verifyRoomStatus(roomInfo, res) {
   //todo | return the available dates
   const isVillaBooked = await Booking.findOne({
     targetType: "villa",
-    checkOut: { $lt: roomInfo.checkIn },
+    checkOut: { $gt: roomInfo.checkIn },
+    checkIn: { $lt: roomInfo.checkOut },
   });
   if (isVillaBooked) {
     res.status(400).json({
@@ -63,10 +70,7 @@ async function verifyRoomStatus(roomInfo, res) {
     const overLappingBookings = await Booking.find({
       checkIn: { $lt: roomInfo.checkOut },
       checkOut: { $gt: roomInfo.checkIn },
-      $or: [
-        { targetType: "floor", floorId: roomInfo.floorId },
-        { targetType: "room", roomId: roomInfo.roomId },
-      ],
+      targetType: { $in: ["floor", "room"] },
     });
 
     if (overLappingBookings.length) {
@@ -83,20 +87,16 @@ async function verifyRoomStatus(roomInfo, res) {
   //for f2 - check villa, f2, r3, r4
   else if (roomInfo.targetType === "floor") {
     const roomsInFloor =
-      roomInfo.floorId === "F1"
-        ? [{ roomId: "R1" }, { roomId: "R2" }]
-        : [{ roomId: "R3" }, { roomId: "R4" }];
+      roomInfo.floorId === "F1" ? ["R1", "R2"] : ["R3", "R4"];
 
     //oh, apparently we cannot have two '$or' at the same level
-
-    const roomIds = roomsInFloor.map((r) => r.roomId);
 
     const overLappingBookings = await Booking.find({
       checkIn: { $lt: roomInfo.checkOut },
       checkOut: { $gt: roomInfo.checkIn },
       $or: [
         { targetType: "floor", floorId: roomInfo.floorId },
-        { targetType: "room", roomId: { $in: roomIds } },
+        { targetType: "room", roomId: { $in: roomsInFloor } },
       ],
     });
 
@@ -167,12 +167,13 @@ export const bookVilla = async (req, res) => {
     const roomInfo = {
       checkIn: checkIn,
       checkOut: checkOut,
-      floorId: Number(req.body?.floorId),
-      roomId: Number(req.body?.roomId),
+      floorId: req.body?.floorId,
+      roomId: req.body?.roomId,
       targetType: req.body?.targetType,
     };
 
-    console.log("functoin called reached bookvill");
+    console.log("roominfo loggig");
+    console.log(roomInfo);
     const isBookingAvailable = await verifyRoomStatus(roomInfo, res);
     if (!isBookingAvailable) {
       return null;
@@ -185,7 +186,7 @@ export const bookVilla = async (req, res) => {
       accessToken: accessToken,
       targetType: req.body.targetType,
       floorId: req.body?.floorId,
-      roomId: req.bodu?.roomId,
+      roomId: req.body?.roomId,
 
       checkIn: checkIn,
       checkOut: checkOut,
