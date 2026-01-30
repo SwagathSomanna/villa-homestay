@@ -139,7 +139,7 @@ const getPrice = async (roomInfo) => {
   }
 
   if (roomInfo.targetType === "villa") {
-    return villaInfo.price;
+    return villaInfo.price * 100; //return in paisa
   }
 
   if (roomInfo.targetType === "floor") {
@@ -149,7 +149,7 @@ const getPrice = async (roomInfo) => {
       throw new Error("Invalid floor selected");
     }
 
-    return floor.price;
+    return floor.price * 100;
   }
 
   if (roomInfo.targetType === "room") {
@@ -157,7 +157,7 @@ const getPrice = async (roomInfo) => {
       const room = floor.rooms.find((r) => r.roomId === roomInfo.roomId);
 
       if (room) {
-        return room.price;
+        return room.price * 100;
       }
     }
 
@@ -166,6 +166,9 @@ const getPrice = async (roomInfo) => {
 
   throw new Error("Invalid target type");
 };
+
+//razorpay imports
+import Razorpay from "razorpay";
 
 export const bookVilla = async (req, res) => {
   try {
@@ -207,8 +210,6 @@ export const bookVilla = async (req, res) => {
       targetType: req.body?.targetType,
     };
 
-    ////////////////remove
-
     const isBookingAvailable = await verifyRoomStatus(roomInfo, res);
     if (!isBookingAvailable) {
       return null;
@@ -216,6 +217,18 @@ export const bookVilla = async (req, res) => {
 
     //fetching the price of the selected entries from the database
     const bookingPrice = await getPrice(roomInfo);
+    //the order API will generate a unique razorpay toDateString();
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    const order = await razorpay.orders.create({
+      amount: bookingPrice,
+      currency: "INR",
+    });
+
+    console.log(order);
 
     const createBooking = await Booking.create({
       guest: {
@@ -229,6 +242,7 @@ export const bookVilla = async (req, res) => {
       checkIn: checkIn,
       checkOut: checkOut,
       status: "pending",
+      order: order,
     });
 
     const createdBooking = await Booking.findById(createBooking._id);
