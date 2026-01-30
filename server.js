@@ -1,5 +1,4 @@
 import express from "express";
-import session from "express-session";
 import cors from "cors";
 import fs from "fs/promises";
 import path from "path";
@@ -42,8 +41,10 @@ addInitialPrices();
 
 //routes
 import bookingRouter from "./routes/booking.route.js";
+import villaRouter from "./routes/villa.routes.js";
 
 app.use("/api/booking", bookingRouter);
+app.use("/api/villa", villaRouter);
 
 //////////////////////////////////////////////////
 

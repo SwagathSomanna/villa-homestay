@@ -1,7 +1,7 @@
 import { Booking } from "../models/booking.model.js";
 import { Villa } from "../models/villa.model.js";
 import crypto from "crypto";
-import { TARGET_TYPE } from "../constants.js";
+import { VILLA_NAME, TARGET_TYPE } from "../constants.js";
 
 //this is done so that all checks are done only on date basis
 function parseDateOnly(str) {
@@ -16,7 +16,6 @@ function parseDateOnly(str) {
 // 4. If any of the rooms in a particular floor are booked, complete floor cant be booked(the other room can)
 
 async function verifyRoomStatus(roomInfo, res) {
-  console.log(roomInfo.targetType, TARGET_TYPE.includes(roomInfo.targetType));
   if (!roomInfo.targetType || !TARGET_TYPE.includes(roomInfo.targetType)) {
     res.status(400).json({ message: "Please select a valid entry " });
     return 0;
@@ -132,6 +131,45 @@ async function verifyRoomStatus(roomInfo, res) {
   return 1;
 }
 
+const getPrice = async (roomInfo) => {
+  const villaInfo = await Villa.findOne({ name: VILLA_NAME });
+
+  if (!villaInfo) {
+    throw new Error("Villa configuration not found");
+  }
+
+  if (roomInfo.targetType === "villa") {
+    return villaInfo.price * 100; //return in paisa
+  }
+
+  if (roomInfo.targetType === "floor") {
+    const floor = villaInfo.floors.find((f) => f.floorId === roomInfo.floorId);
+
+    if (!floor) {
+      throw new Error("Invalid floor selected");
+    }
+
+    return floor.price * 100;
+  }
+
+  if (roomInfo.targetType === "room") {
+    for (const floor of villaInfo.floors) {
+      const room = floor.rooms.find((r) => r.roomId === roomInfo.roomId);
+
+      if (room) {
+        return room.price * 100;
+      }
+    }
+
+    throw new Error("Invalid room selected");
+  }
+
+  throw new Error("Invalid target type");
+};
+
+//razorpay imports
+import Razorpay from "razorpay";
+
 export const bookVilla = async (req, res) => {
   try {
     const accessToken = crypto.randomBytes(32).toString("hex");
@@ -172,12 +210,25 @@ export const bookVilla = async (req, res) => {
       targetType: req.body?.targetType,
     };
 
-    console.log("roominfo loggig");
-    console.log(roomInfo);
     const isBookingAvailable = await verifyRoomStatus(roomInfo, res);
     if (!isBookingAvailable) {
       return null;
     }
+
+    //fetching the price of the selected entries from the database
+    const bookingPrice = await getPrice(roomInfo);
+    //the order API will generate a unique razorpay toDateString();
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    const order = await razorpay.orders.create({
+      amount: bookingPrice,
+      currency: "INR",
+    });
+
+    console.log(order);
 
     const createBooking = await Booking.create({
       guest: {
@@ -190,6 +241,8 @@ export const bookVilla = async (req, res) => {
 
       checkIn: checkIn,
       checkOut: checkOut,
+      status: "pending",
+      order: order,
     });
 
     const createdBooking = await Booking.findById(createBooking._id);
@@ -198,8 +251,6 @@ export const bookVilla = async (req, res) => {
         .status(500)
         .json({ message: "Something went wrong while boooking" });
     }
-
-    console.log(createdBooking);
 
     return res.status(201).json({
       message: "Booking successful",
@@ -213,7 +264,7 @@ export const bookVilla = async (req, res) => {
         bookingType: createdBooking.targetType,
         floorId: createdBooking?.floorId,
         roomId: createdBooking?.roomId,
-        status: pending,
+        status: createdBooking?.status,
       },
     });
   } catch (error) {
