@@ -440,6 +440,78 @@ fieldset {
   display: none;
 }
 
+.availability-indicator {
+  padding: 0.75rem 1rem;
+  border-radius: 0.8rem;
+  font-weight: 600;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.availability-indicator.hidden {
+  display: none !important;
+}
+
+.availability-indicator.loading {
+  background: rgba(154, 107, 49, 0.1);
+  border: 1px solid rgba(154, 107, 49, 0.3);
+  color: var(--accent-dark);
+}
+
+.availability-indicator.success {
+  background: rgba(46, 125, 50, 0.1);
+  border: 1px solid rgba(46, 125, 50, 0.4);
+  color: #2e7d32;
+  animation: successPulse 0.4s ease;
+}
+
+.availability-indicator.error {
+  background: rgba(229, 57, 53, 0.1);
+  border: 1px solid rgba(229, 57, 53, 0.4);
+  color: #a31610;
+}
+
+.availability-indicator .spinner {
+  font-size: 1.2rem;
+  animation: spin 1s linear infinite;
+}
+
+.availability-indicator .check {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.availability-indicator .cross {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes successPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .totals {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
