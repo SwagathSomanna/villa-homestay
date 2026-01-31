@@ -51,6 +51,38 @@ async function fetchVillaPricing() {
   }
 }
 
+// Fetch booked dates for visual calendar
+async function fetchBookedDates(
+  targetType,
+  roomId,
+  floorId,
+  startDate,
+  endDate,
+) {
+  try {
+    const params = new URLSearchParams({
+      targetType,
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
+    });
+
+    if (targetType === "room" && roomId) params.append("roomId", roomId);
+    if (targetType === "floor" && floorId) params.append("floorId", floorId);
+
+    const response = await fetch(
+      `${API_BASE_URL}/booking/booked-dates?${params.toString()}`,
+    );
+
+    if (!response.ok) throw new Error("Failed to fetch booked dates");
+
+    const data = await response.json();
+    return data.bookedRanges || [];
+  } catch (error) {
+    console.error("Error fetching booked dates:", error);
+    return [];
+  }
+}
+
 // Check date availability
 async function checkAvailability(
   checkIn,
@@ -179,6 +211,8 @@ let currentBookingType = "room";
 let currentRoomId = "R1"; // Maps to 'robusta'
 let currentFloorId = "F1";
 let pendingBookingData = null;
+let bookedDateRanges = []; // Store booked dates for current selection
+let availabilityCheckTimeout = null; // Debounce availability checks
 
 // Room name to ID mapping
 const roomNameToId = {
@@ -192,6 +226,115 @@ const floorNameToId = {
   ground: "F1",
   top: "F2",
 };
+
+// ============================================================================
+// AVAILABILITY CALENDAR FUNCTIONS
+// ============================================================================
+
+// Check if a date falls within any booked range
+function isDateBooked(date) {
+  const checkDate = formatDate(date);
+
+  return bookedDateRanges.some((range) => {
+    const rangeStart = range.checkIn;
+    const rangeEnd = range.checkOut;
+    return checkDate >= rangeStart && checkDate < rangeEnd;
+  });
+}
+
+// Update booked dates based on current selection
+async function updateBookedDates() {
+  const today = new Date();
+  const threeMonthsLater = new Date(today);
+  threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+
+  bookedDateRanges = await fetchBookedDates(
+    currentBookingType,
+    currentRoomId,
+    currentFloorId,
+    today,
+    threeMonthsLater,
+  );
+
+  // Update date inputs to reflect availability
+  updateDateInputConstraints();
+}
+
+// Disable booked dates in date inputs
+function updateDateInputConstraints() {
+  // Note: HTML5 date inputs don't support disabling specific dates
+  // We'll add visual feedback and validation instead
+  // For full calendar UI, we'd need a calendar library
+}
+
+// Real-time availability check with debouncing
+function scheduleAvailabilityCheck() {
+  clearTimeout(availabilityCheckTimeout);
+
+  availabilityCheckTimeout = setTimeout(async () => {
+    const checkIn = checkInInput.value
+      ? parseDateOnly(checkInInput.value)
+      : null;
+    const checkOut = checkOutInput.value
+      ? parseDateOnly(checkOutInput.value)
+      : null;
+
+    if (!checkIn || !checkOut || checkOut <= checkIn) {
+      hideAvailabilityStatus();
+      return;
+    }
+
+    // Show loading state
+    showAvailabilityLoading();
+
+    const availability = await checkAvailability(
+      checkIn,
+      checkOut,
+      currentBookingType,
+      currentRoomId,
+      currentFloorId,
+    );
+
+    if (availability.available) {
+      showAvailabilitySuccess();
+    } else {
+      showAvailabilityError(availability.message);
+    }
+  }, 500); // Wait 500ms after user stops typing
+}
+
+function showAvailabilityLoading() {
+  const indicator = document.getElementById("availabilityIndicator");
+  if (indicator) {
+    indicator.className = "availability-indicator loading";
+    indicator.innerHTML =
+      '<span class="spinner">⏳</span> Checking availability...';
+  }
+}
+
+function showAvailabilitySuccess() {
+  const indicator = document.getElementById("availabilityIndicator");
+  if (indicator) {
+    indicator.className = "availability-indicator success";
+    indicator.innerHTML = '<span class="check">✓</span> Dates available!';
+  }
+}
+
+function showAvailabilityError(message) {
+  const indicator = document.getElementById("availabilityIndicator");
+  if (indicator) {
+    indicator.className = "availability-indicator error";
+    indicator.innerHTML = `<span class="cross">✗</span> ${message || "Dates not available"}`;
+  }
+}
+
+function hideAvailabilityStatus() {
+  const indicator = document.getElementById("availabilityIndicator");
+  if (indicator) {
+    indicator.className = "availability-indicator hidden";
+    indicator.innerHTML = "";
+  }
+}
 
 // ============================================================================
 // UI UPDATE FUNCTIONS
@@ -303,6 +446,14 @@ function updateBookingTypeUI() {
     roomOptionLabel.classList.add("hidden");
     floorSelect.classList.add("hidden");
     floorOptionLabel.classList.add("hidden");
+  }
+
+  // Fetch booked dates for new selection
+  updateBookedDates();
+
+  // Re-check availability if dates are selected
+  if (checkInInput.value && checkOutInput.value) {
+    scheduleAvailabilityCheck();
   }
 
   updateBookingSummary();
@@ -620,12 +771,20 @@ bookingTypeChips.forEach((chip) => {
 // Room selection
 roomSelect.addEventListener("change", (e) => {
   currentRoomId = roomNameToId[e.target.value];
+  updateBookedDates(); // Fetch booked dates for new room
+  if (checkInInput.value && checkOutInput.value) {
+    scheduleAvailabilityCheck(); // Re-check availability
+  }
   updateBookingSummary();
 });
 
 // Floor selection
 floorSelect.addEventListener("change", (e) => {
   currentFloorId = floorNameToId[e.target.value];
+  updateBookedDates(); // Fetch booked dates for new floor
+  if (checkInInput.value && checkOutInput.value) {
+    scheduleAvailabilityCheck(); // Re-check availability
+  }
   updateBookingSummary();
 });
 
@@ -644,9 +803,13 @@ checkInInput.addEventListener("change", () => {
     }
   }
   updateBookingSummary();
+  scheduleAvailabilityCheck(); // Check availability in real-time
 });
 
-checkOutInput.addEventListener("change", updateBookingSummary);
+checkOutInput.addEventListener("change", () => {
+  updateBookingSummary();
+  scheduleAvailabilityCheck(); // Check availability in real-time
+});
 
 // Guest count changes
 adultCountInput.addEventListener("change", updateBookingSummary);
@@ -814,6 +977,9 @@ async function initApp() {
 
   // Fetch pricing data
   await fetchVillaPricing();
+
+  // Fetch initial booked dates for default selection (Robusta room)
+  await updateBookedDates();
 
   // Initial UI state
   updateBookingTypeUI();
