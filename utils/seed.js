@@ -14,22 +14,22 @@ const rooms = [
   {
     roomId: "R1",
     name: "Robusta",
-    price: 5000,
+    price: 4,
   },
   {
     roomId: "R2",
     name: "Arabica",
-    price: 4000,
+    price: 4,
   },
   {
     roomId: "R3",
     name: "Excelsa",
-    price: 4000,
+    price: 4,
   },
   {
     roomId: "R4",
     name: "Liberica",
-    price: 4000,
+    price: 4,
   },
 ];
 
@@ -37,13 +37,13 @@ const floors = [
   {
     floorId: "F1",
     name: "Ground Floor - Robusta + Arabica",
-    price: 9000,
+    price: 4,
     rooms: [rooms[0], rooms[1]],
   },
   {
     floorId: "F2",
     name: "Top Floor - Excelsa + Liberica",
-    price: 8000,
+    price: 4,
     rooms: [rooms[2], rooms[3]],
   },
 ];
@@ -60,7 +60,7 @@ const addInitialPrices = async (req, res) => {
 
     const createSeed = await Villa.create({
       name: VILLA_NAME,
-      price: 15000,
+      price: 4,
       floors: [...floors],
     });
 

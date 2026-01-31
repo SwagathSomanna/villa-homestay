@@ -42,28 +42,18 @@ addInitialPrices();
 //routes
 import bookingRouter from "./routes/booking.route.js";
 import villaRouter from "./routes/villa.routes.js";
+import razorpayRouter from "./routes/razorpay.route.js";
 
 app.use("/api/booking", bookingRouter);
 app.use("/api/villa", villaRouter);
+app.use("/api/payment", razorpayRouter);
+//need to set to raw for webhooks to work
+app.use(
+  "/api/payment/razorpay-webhook",
+  express.raw({ type: "application/json" }),
+);
 
 //////////////////////////////////////////////////
-
-//session
-// app.use(
-//   session({
-//     name: "admin.sid",
-//     secret: "villa-admin-secret",
-//     resave: false,
-//     saveUninitialized: false,
-//     rolling: true,
-//     cookie: {
-//       httpOnly: true,
-//       secure: false,
-//       sameSite: "lax",
-//       maxAge: 30 * 60 * 1000,
-//     },
-//   }),
-// );
 
 /* ---------------- HELPERS ---------------- */
 async function readState() {

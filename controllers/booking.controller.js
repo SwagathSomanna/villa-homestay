@@ -220,7 +220,10 @@ export const bookVilla = async (req, res) => {
     }
 
     //fetching the price of the selected entries from the database
-    const bookingPrice = await getPrice(roomInfo);
+    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+    const pricePerNight = await getPrice(roomInfo);
+    const bookingPrice = pricePerNight * nights; // Total for all nights
+    const priceToPay = Math.floor(bookingPrice * 0.25); //pay 25 percent of the price upfront
     //the order API will generate a unique razorpay toDateString();
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
@@ -228,11 +231,11 @@ export const bookVilla = async (req, res) => {
     });
 
     const order = await razorpay.orders.create({
-      amount: bookingPrice,
+      amount: priceToPay,
       currency: "INR",
     });
 
-    console.log(order);
+    // console.log("log from boooooking controller", order);
 
     const createBooking = await Booking.create({
       guest: {
@@ -246,7 +249,7 @@ export const bookVilla = async (req, res) => {
       checkIn: checkIn,
       checkOut: checkOut,
       status: "pending",
-      order: order,
+      razorpayOrderId: order.id,
     });
 
     const createdBooking = await Booking.findById(createBooking._id);
@@ -269,6 +272,11 @@ export const bookVilla = async (req, res) => {
         floorId: createdBooking?.floorId,
         roomId: createdBooking?.roomId,
         status: createdBooking?.status,
+        order: {
+          id: order.id,
+          amount: order.amount,
+          currency: order.currency,
+        },
       },
     });
   } catch (error) {

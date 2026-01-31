@@ -464,14 +464,23 @@ function updateBookingTypeUI() {
 // ============================================================================
 
 function initRazorpay(orderData, bookingInfo) {
+  // Handle both response structures: orderData.data.order OR orderData.order
+  const order = orderData.data?.order || orderData.order;
+
+  if (!order || !order.id || !order.amount) {
+    showError("Invalid order data received from server. Please try again.");
+    console.error("Order data:", orderData);
+    return;
+  }
+
   // IMPORTANT: Always use amount from backend, never frontend calculation
   const options = {
     key: RAZORPAY_KEY_ID,
-    amount: orderData.data.order.amount, // Backend-calculated amount in paise
-    currency: orderData.data.order.currency,
+    amount: order.amount, // Backend-calculated amount in paise
+    currency: order.currency || "INR",
     name: "Anudina Kuteera",
     description: `${bookingInfo.bookingTypeText} Booking`,
-    order_id: orderData.data.order.id,
+    order_id: order.id,
     prefill: {
       name: bookingInfo.guestName,
       email: bookingInfo.guestEmail,
@@ -502,25 +511,27 @@ function initRazorpay(orderData, bookingInfo) {
 }
 
 function handlePaymentSuccess(paymentResponse, bookingData) {
-  // Show success message with booking details
-  const checkInDate = new Date(bookingData.data.checkIn).toLocaleDateString(
-    "en-IN",
-    {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    },
-  );
-  const checkOutDate = new Date(bookingData.data.checkOut).toLocaleDateString(
-    "en-IN",
-    {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    },
-  );
+  // Verify payment immediately (don't wait for webhook)
+  verifyPaymentWithBackend(paymentResponse).then((verified) => {
+    if (verified) {
+      // Show success message with booking details
+      const checkInDate = new Date(bookingData.data.checkIn).toLocaleDateString(
+        "en-IN",
+        {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        },
+      );
+      const checkOutDate = new Date(
+        bookingData.data.checkOut,
+      ).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
 
-  alert(`🎉 Payment Successful!
+      alert(`🎉 Payment Successful!
 
 Booking Confirmed for ${bookingData.data.name}
 
@@ -532,14 +543,42 @@ A confirmation email has been sent to ${bookingData.data.email}
 
 Payment ID: ${paymentResponse.razorpay_payment_id}`);
 
-  // Reset form
-  bookingForm.reset();
-  guestDetailsFieldset.classList.add("hidden");
-  setMinDates();
-  updateBookingSummary();
+      // Reset form
+      bookingForm.reset();
+      guestDetailsFieldset.classList.add("hidden");
+      setMinDates();
+      updateBookingSummary();
 
-  // Scroll to top
-  window.scrollTo({ top: 0, behavior: "smooth" });
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      showError(
+        "Payment successful but verification pending. Please contact us with your payment ID: " +
+          paymentResponse.razorpay_payment_id,
+      );
+    }
+  });
+}
+
+// Verify payment with backend
+async function verifyPaymentWithBackend(paymentResponse) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/payment/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        razorpay_order_id: paymentResponse.razorpay_order_id,
+        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+        razorpay_signature: paymentResponse.razorpay_signature,
+      }),
+    });
+
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    console.error("Payment verification error:", error);
+    return false;
+  }
 }
 
 function handlePaymentFailure(response, bookingData) {
