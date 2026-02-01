@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anudina Kuteera | Guest Reviews</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    <style>
+
+        .reviews-hero {
+            min-height: 40vh;
+            background: url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1600&q=80') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            padding: 3rem clamp(1rem, 5vw, 5rem);
+        }
+
+        .review-card {
+            background: #fff;
+            border-radius: 1.2rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 70px rgba(0, 0, 0, 0.08);
+        }
+
+        .review-card h3 {
+            margin: 0;
+        }
+
+        .rating {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        nav {
+            padding: 1rem clamp(1rem, 5vw, 5rem);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">Anudina Kuteera</div>
+        <a href="index.html">← Back to rooms</a>
+    </nav>
+    <header class="reviews-hero">
+        <div>
+            <p class="eyebrow">Testimonial Wall</p>
+            <h1>Reviews curated from Google, Airbnb & Booking.com.</h1>
+        </div>
+    </header>
+
+    <main class="reviews-grid" id="reviewsGrid"></main>
+
+    <footer>
+        <p>&copy; <span id="year"></span> Anudina Kuteera · <a href="index.html">Return to main site</a></p>
+    </footer>
+
+    <script src="./reviews.js" type="module"></script>
+</body>
+
+</html>
+

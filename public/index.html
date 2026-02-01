@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anudina Kuteera | Signature Rooms & Admin Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body>
+    <div class="cursor pointer-dot"></div>
+    <div class="cursor pointer-glow"></div>
+    <div class="cursor pointer-trail"></div>
+    <header class="hero" id="home">
+      <nav class="nav">
+        <div class="logo">Anudina Kuteera</div>
+        <ul>
+          <li><a href="#rooms">Rooms</a></li>
+          <li><a href="#booking">Booking</a></li>
+          <li><a href="#activities">Activities</a></li>
+          <li><a href="admin.html">Admin</a></li>
+          <li><a href="reviews.html">Reviews</a></li>
+        </ul>
+      </nav>
+      <div class="hero-content">
+        <div>
+          <p class="eyebrow">Robusta · Arabica · Excelsa · Liberica</p>
+          <h1>Coorg rainforest villa designed for coffee lovers.</h1>
+          <p class="lead">
+            Ground floor suites Robusta & Arabica welcome families, while
+            Excelsa & Liberica offer lofty top-floor hideaways. Book per room,
+            floor, or take over the entire villa.
+          </p>
+          <a class="btn primary" href="#booking">Plan your stay</a>
+          <a
+            class="btn ghost"
+            href="https://www.google.com/maps/place/Anudina+Kuteera/@12.3391634,75.7938831,791m/data=!3m1!1e3!4m9!3m8!1s0x3ba5ab7fedaf0c9d:0xad54e5c861ca2357!5m2!4m1!1i2!8m2!3d12.3391634!4d75.796458!16s%2Fg%2F11vrfl9qkz?entry=ttu&amp;g_ep=EgoyMDI1MTExNi4wIKXMDSoASAFQAw%3D%3D"
+            target="_blank"
+            rel="noopener"
+          >
+            Get directions
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="rooms" id="rooms">
+        <div class="section-heading">
+          <p class="eyebrow">Boutique Suites</p>
+          <h2>Pick a personality that suits your stay.</h2>
+        </div>
+        <div class="room-grid">
+          <article class="room-card" data-room="robusta">
+            <div class="room-media robusta"></div>
+            <div class="room-body">
+              <h3>Robusta — Ground Floor</h3>
+              <p>
+                Largest suite with private sit-out, perfect for families. Sleeps
+                4 adults + 2 children.
+              </p>
+              <ul>
+                <li>₹5,000 per night</li>
+              </ul>
+            </div>
+          </article>
+          <article class="room-card" data-room="arabica">
+            <div class="room-media arabica"></div>
+            <div class="room-body">
+              <h3>Arabica — Ground Floor</h3>
+              <p>
+                Refined guest suite with a private sit-out area. Sleeps 3 adults + 2 children.
+              </p>
+              <ul>
+                <li>₹4,000 per night</li>
+              </ul>
+            </div>
+          </article>
+          <article class="room-card" data-room="excelsa">
+            <div class="room-media excelsa"></div>
+            <div class="room-body">
+              <h3>Excelsa — Top Floor</h3>
+              <p>
+                Sunrise-facing loft with panoramic morning views. Sleeps 3 adults + 1 child.
+              </p>
+              <ul>
+                <li>₹4,000 per night</li>
+              </ul>
+            </div>
+          </article>
+          <article class="room-card" data-room="liberica">
+            <div class="room-media liberica"></div>
+            <div class="room-body">
+              <h3>Liberica — Top Floor</h3>
+              <p>
+                Sunrise-facing loft with peaceful morning dawn views. Sleeps 3 adults + 1 child.
+              </p>
+              <ul>
+                <li>₹4,000 per night</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="booking" id="booking">
+        <div class="section-heading">
+          <p class="eyebrow">Bookings</p>
+          <h2>Reserve a room, floor, or the entire villa.</h2>
+        </div>
+        <form class="booking-form" id="bookingForm">
+          <div class="form-panel">
+            <fieldset class="guest-details hidden" id="guestDetails">
+              <legend>Guest details</legend>
+              <label
+                >Full name
+                <input
+                  type="text"
+                  id="guestName"
+                  placeholder="Guest name"
+                  autocomplete="name"
+                />
+              </label>
+              <label
+                >Email address
+                <input
+                  type="email"
+                  id="guestEmail"
+                  placeholder="name@example.com"
+                  autocomplete="email"
+                />
+              </label>
+              <label
+                >Phone number
+                <input
+                  type="tel"
+                  id="guestPhone"
+                  placeholder="+91 00000 00000"
+                  autocomplete="tel"
+                />
+              </label>
+            </fieldset>
+
+            <label>Booking type</label>
+            <div class="chip-group">
+              <button type="button" class="chip active" data-type="room">
+                Individual Room
+              </button>
+              <button type="button" class="chip" data-type="floor">
+                Entire Floor
+              </button>
+              <button type="button" class="chip" data-type="villa">
+                Entire Villa
+              </button>
+            </div>
+
+            <label id="roomOptionLabel">Select room</label>
+            <select id="roomSelect">
+              <option value="robusta">Robusta</option>
+              <option value="arabica">Arabica</option>
+              <option value="excelsa">Excelsa</option>
+              <option value="liberica">Liberica</option>
+            </select>
+
+            <label id="floorOptionLabel" class="hidden">Select floor</label>
+            <select id="floorSelect" class="hidden">
+              <option value="ground">Ground Floor — Robusta + Arabica</option>
+              <option value="top">Top Floor — Excelsa + Liberica</option>
+            </select>
+
+            <div class="grid two">
+              <label
+                >Check-In Date
+                <input type="date" id="checkInDate" required />
+              </label>
+              <label
+                >Check-Out Date
+                <input type="date" id="checkOutDate" required />
+              </label>
+            </div>
+
+            <div
+              id="availabilityIndicator"
+              class="availability-indicator hidden"
+            ></div>
+
+            <div class="grid two">
+              <label
+                >Stay length
+                <div class="pill-display" id="nightCount">1 night</div>
+              </label>
+            </div>
+
+            <div class="grid two">
+              <label
+                >Adults
+                <input
+                  type="number"
+                  id="adultCount"
+                  min="1"
+                  value="2"
+                  required
+                />
+              </label>
+              <label
+                >Children
+                <input
+                  type="number"
+                  id="childCount"
+                  min="0"
+                  value="0"
+                  required
+                />
+              </label>
+            </div>
+          </div>
+
+          <div class="summary-panel">
+            <h3>Stay summary</h3>
+            <div id="formErrors" class="form-errors hidden"></div>
+            <ul class="summary-list" id="summaryList"></ul>
+            <div class="totals">
+              <div>
+                <span>Total (estimated)</span>
+                <strong id="totalPrice">₹0</strong>
+              </div>
+              <div>
+                <span>50% deposit</span>
+                <strong id="depositPrice">₹0</strong>
+              </div>
+            </div>
+            <p class="notice">
+              A minimum 50% payment is required to block the selected dates.
+              Final amount will be confirmed before payment.
+            </p>
+            <button type="submit" class="btn primary block">
+              Reserve &amp; Pay
+            </button>
+            <small
+              >Razorpay Checkout will open after you accept the terms.</small
+            >
+          </div>
+        </form>
+      </section>
+
+      <section class="activities" id="activities">
+        <div class="section-heading">
+          <p class="eyebrow">Immersive experiences</p>
+          <h2>Slow adventures curated by the estate team.</h2>
+        </div>
+        <div class="activity-grid">
+          <article>
+            <h3>Swimming Pool</h3>
+            <p>
+              A spacious swimming pool designed for comfort and safety, ideal for guests seeking relaxation and recreation during their stay.
+            </p>
+          </article>
+          <article>
+            <h3>Off-road Safari</h3>
+            <p>
+             An off-road safari experience designed for adventure and exploration, especially enjoyable during the monsoon season and available at an additional cost.
+            </p>
+          </article>
+          <article>
+            <h3>Fishing Deck</h3>
+            <p>A fishing experience designed for relaxation and outdoor enjoyment, available to guests at an additional cost.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="terms">
+        <div>
+          <h3>Terms &amp; Conditions</h3>
+          <p>
+            100% refund issued only if cancellation occurs 7 days prior to
+            arrival. Date changes subject to availability. Bookings are accepted
+            up to 2 months ahead. These details are shown in a pop-up before
+            payment.
+          </p>
+        </div>
+        <div>
+          <h3>Payments</h3>
+          <p>
+            Payment is processed securely via Razorpay. A minimum of
+            50% of the total stay value is mandatory to reserve.
+          </p>
+        </div>
+        <div>
+          <h3>Need assistance?</h3>
+          <p>
+            Reach us on <a href="tel:+9199722 53584">+91 99722 53584</a> or email
+            <a href="mailto:deenaprabha93@gmail.com"
+              >deenaprabha93@gmail.com</a
+            >.
+          </p>
+        </div>
+      </section>
+
+      <section class="gallery" id="gallery">
+        <div class="section-heading">
+          <p class="eyebrow">Experience Our Stay</p>
+          <h2>Shots curated by the admin panel.</h2>
+        </div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+      </section>
+
+      <section class="map">
+        <div>
+          <h3>Find us effortlessly</h3>
+          <p>Anudina Kuteera Homestay, Coorg district, Karnataka</p>
+          <a
+            class="btn ghost"
+            href="https://www.google.com/maps/place/Anudina+Kuteera/@12.3391634,75.7938831,791m/data=!3m1!1e3!4m9!3m8!1s0x3ba5ab7fedaf0c9d:0xad54e5c861ca2357!5m2!4m1!1i2!8m2!3d12.3391634!4d75.796458!16s%2Fg%2F11vrfl9qkz?entry=ttu&amp;g_ep=EgoyMDI1MTExNi4wIKXMDSoASAFQAw%3D%3D"
+            target="_blank"
+            rel="noopener"
+          >
+            Open Google Maps
+          </a>
+        </div>
+        <div class="map-preview">
+          <a
+            href="https://www.google.com/maps/place/Anudina+Kuteera/@12.3391634,75.7938831,791m/data=!3m1!1e3!4m9!3m8!1s0x3ba5ab7fedaf0c9d:0xad54e5c861ca2357!5m2!4m1!1i2!8m2!3d12.3391634!4d75.796458!16s%2Fg%2F11vrfl9qkz?entry=ttu&amp;g_ep=EgoyMDI1MTExNi4wIKXMDSoASAFQAw%3D%3D"
+            target="_blank"
+            rel="noopener"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+              alt="Anudina Kuteera vicinity preview"
+              loading="lazy"
+            />
+            <span class="map-preview__label"
+              >Tap to view Anudina Kuteera on Google Maps</span
+            >
+          </a>
+        </div>
+      </section>
+
+      <section class="reviews-section" id="reviews">
+        <div class="section-heading">
+          <p class="eyebrow">Guest Reviews</p>
+          <h2>What our guests say about their stay.</h2>
+        </div>
+        <div class="reviews-grid-index" id="reviewsGridIndex"></div>
+        <div style="text-align: center; margin-top: 2rem">
+          <a href="reviews.html" class="btn primary">View All Reviews</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; <span id="year"></span> Anudina Kuteera.</p>
+    </footer>
+
+    <div id="modalBackdrop" class="modal-backdrop hidden"></div>
+    <div
+      class="modal hidden"
+      id="termsModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="termsHeading"
+    >
+      <div class="modal-card">
+        <button class="modal-close" data-close-modal>&times;</button>
+        <h3 id="termsHeading">Before we confirm</h3>
+        <p>Please review and accept the villa terms:</p>
+        <ul class="modal-list">
+          <li>100% refund only if cancelled 7 days before check-in.</li>
+          <li>Date changes depend on availability and season.</li>
+          <li>25% deposit is mandatory to hold your slot.</li>
+          <li>Government ID proof must be shared upon arrival.</li>
+        </ul>
+        <button class="btn primary block" id="termsAgreeBtn">
+          I Agree &amp; Continue
+        </button>
+      </div>
+    </div>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
