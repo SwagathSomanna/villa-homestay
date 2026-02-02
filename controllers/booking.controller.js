@@ -223,7 +223,7 @@ export const bookVilla = async (req, res) => {
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
     const pricePerNight = await getPrice(roomInfo);
     const bookingPrice = pricePerNight * nights; // Total for all nights
-    const priceToPay = Math.floor(bookingPrice * 0.25); //pay 25 percent of the price upfront
+    const priceToPay = Math.floor(bookingPrice * 0.5); //pay 25 percent of the price upfront
     //the order API will generate a unique razorpay toDateString();
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,

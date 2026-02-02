@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:4000",
+    origin: process.env.CORS_ORIGIN_NGROK || "http://localhost:4000",
     credentials: true,
   }),
 );
@@ -52,6 +52,8 @@ app.use(
   "/api/payment/razorpay-webhook",
   express.raw({ type: "application/json" }),
 );
+
+/////////////test ///////
 
 //////////////////////////////////////////////////
 
