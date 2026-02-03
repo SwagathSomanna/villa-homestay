@@ -71,3 +71,27 @@ export const getBooking = async (req, res) => {
     return res.status(500).json({ message: "Something went Wrong " });
   }
 };
+
+import { verifyRoomStatus } from "./booking.controller.js";
+export const updateBooking = async (req, res) => {
+  try {
+    if (checkIn >= checkOut) {
+      // validations
+      return res
+        .status(400)
+        .json({ message: "CheckIn cannot be earlier than checkout" });
+    }
+
+    if (checkIn <= today) {
+      return res.status(400).json({ message: "Please select a future date" });
+    }
+
+    //admin update requirements ?
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+//update villa price - based on dates
+//can be booked only 45 days prior

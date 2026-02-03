@@ -15,7 +15,7 @@ function parseDateOnly(str) {
 // 3. If anything gets booked, villa(whole) cant be booked.
 // 4. If any of the rooms in a particular floor are booked, complete floor cant be booked(the other room can)
 
-async function verifyRoomStatus(roomInfo, res) {
+export async function verifyRoomStatus(roomInfo, res) {
   if (!roomInfo.targetType || !TARGET_TYPE.includes(roomInfo.targetType)) {
     res.status(400).json({ message: "Please select a valid entry " });
     return 0;
