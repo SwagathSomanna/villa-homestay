@@ -1,4 +1,4 @@
-# Anudina Kunteera Resorts
+# Anudina Kuteera 
 
 ## Structure
 
