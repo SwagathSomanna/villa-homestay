@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 //specific to esm
 import { fileURLToPath } from "url";
@@ -22,6 +23,7 @@ dotenv.config();
 app.use(express.json({ limit: "128kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN_NGROK || "http://localhost:4000",
