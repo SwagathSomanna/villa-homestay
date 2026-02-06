@@ -172,6 +172,7 @@ async function handleOrderPaid(payload) {
  * This is called from frontend after successful payment
  * to provide immediate feedback to user before webhook arrives
  */
+import { sendMailToGuest, sendMailToAdmin } from "../utils/resend.util.js";
 export const verifyPayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
@@ -208,6 +209,10 @@ export const verifyPayment = async (req, res) => {
     booking.status = "paid";
     booking.paymentId = razorpay_payment_id;
     await booking.save();
+
+    const guestMail = await sendMailToGuest(booking);
+    console.log(guestMail);
+    await sendMailToAdmin(booking);
 
     return res.status(200).json({
       success: true,

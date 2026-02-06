@@ -10,7 +10,7 @@ const bookingSchema = new Schema(
       },
       email: { type: String, required: true },
       phone: { type: String, required: true },
-      adults: Number,
+      adults: { type: Number, min: 1 },
       children: Number,
     },
 

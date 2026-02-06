@@ -3,7 +3,7 @@ import cors from "cors";
 import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
-import dotenv from "dotenv";
+import "dotenv/config";
 import cookieParser from "cookie-parser";
 
 //specific to esm
@@ -19,7 +19,6 @@ import connectDB from "./db.js";
 const app = express();
 const DATA_PATH = path.join(__dirname, "data", "state.json");
 
-dotenv.config();
 app.use(express.json({ limit: "128kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -60,69 +59,9 @@ app.use(
 app.use("/api/admin", adminRouter);
 
 /////////////test ///////
+// import { sendMail } from "./utils/resend.util.js";
+// sendMail().then(() => {
+//   console.log("mail set");
+// });
 
 //////////////////////////////////////////////////
-
-/* ---------------- HELPERS ---------------- */
-async function readState() {
-  const data = await fs.readFile(DATA_PATH, "utf-8");
-  return JSON.parse(data);
-}
-async function writeState(state) {
-  await fs.writeFile(DATA_PATH, JSON.stringify(state, null, 2));
-}
-
-/* ---------------- ADMIN LOGIN ---------------- */
-const ADMIN_PIN = "7845";
-const ADMIN_HASH = crypto.createHash("sha256").update(ADMIN_PIN).digest("hex");
-
-function verifyPin(pin) {
-  const hash = crypto.createHash("sha256").update(pin).digest("hex");
-  return crypto.timingSafeEqual(
-    Buffer.from(hash, "hex"),
-    Buffer.from(ADMIN_HASH, "hex"),
-  );
-}
-
-app.post("/api/admin/login", (req, res) => {
-  if (!verifyPin(req.body.pin)) {
-    return res.status(401).json({ message: "Invalid PIN" });
-  }
-  req.session.admin = true;
-  res.json({ success: true });
-});
-
-/* ---------------- PUBLIC STATE (PRICES) ---------------- */
-app.get("/api/state", async (req, res) => {
-  const state = await readState();
-  res.json({
-    prices: state.prices,
-    floorPrices: state.floorPrices,
-    blocks: state.blocks,
-  });
-});
-
-/* ---------------- CREATE BOOKING ---------------- */
-app.post("/api/bookings", async (req, res) => {
-  const state = await readState();
-
-  const booking = {
-    id: crypto.randomUUID(),
-    ...req.body,
-    status: "PENDING_PAYMENT",
-    createdAt: new Date().toISOString(),
-  };
-
-  state.bookings.push(booking);
-  await writeState(state);
-
-  res.json({ booking });
-});
-
-/* ---------------- PAYMENTS ---------------- */
-// app.use("/api/payments", paymentRoutes);
-//
-// /* ---------------- API SAFETY ---------------- */
-// app.use("/api", (req, res) => {
-//   res.status(404).json({ error: "API_NOT_FOUND" });
-// });

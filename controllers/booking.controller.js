@@ -172,6 +172,10 @@ export const bookVilla = async (req, res) => {
       return res.status(400).json({ message: "Invalid guest count" });
     }
 
+    if (!Number(guestInfo.adults)) {
+      return res.status(400).json({ message: "adults cannot be zero" });
+    }
+
     // Get base price from Villa (in RUPEES)
     const villa = await Villa.findOne();
     if (!villa) {
