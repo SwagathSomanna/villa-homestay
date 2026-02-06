@@ -70,7 +70,7 @@ async function fetchBookedDates(
     if (targetType === "floor" && floorId) params.append("floorId", floorId);
 
     const response = await fetch(
-      `${API_BASE_URL}/booking/booked-dates?${params.toString()}`,
+      a`${API_BASE_URL}/booking/booked-dates?${params.toString()}`,
     );
 
     if (!response.ok) throw new Error("Failed to fetch booked dates");

@@ -32,13 +32,18 @@ async function checkAuth() {
   }
 }
 
-// ============================================================================
-// LOGOUT
-// ============================================================================
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  localStorage.removeItem("adminUsername");
-  // Clear cookie by redirecting to a logout endpoint (if you create one)
-  // For now, just redirect to login
+//logout
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  try {
+    console.log(";ogout clocked");
+    await fetch(`${API_BASE_URL}/admin/logout`, {
+      method: "POST", // better than GET for logout
+      credentials: "include",
+    });
+  } catch (err) {
+    console.error("Logout failed", err);
+  }
+
   window.location.href = "admin-login.html";
 });
 

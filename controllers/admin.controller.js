@@ -57,7 +57,6 @@ function parseDateOnly(str) {
 }
 
 export const getBooking = async (req, res) => {
-  console.log("req came to booking controller");
   try {
     const today = parseDateOnly(new Date().toISOString().slice(0, 10));
     const existingBookings = await Booking.find({
@@ -65,7 +64,7 @@ export const getBooking = async (req, res) => {
       status: { $in: ["paid", "blocked"] },
     });
 
-    console.log(existingBookings);
+    // console.log(existingBookings);
     return res.status(200).json(existingBookings);
   } catch (error) {
     console.error(error);
@@ -97,11 +96,9 @@ export const updateBooking = async (req, res) => {
 
     // Date validations
     if (newCheckIn >= newCheckOut) {
-      return res
-        .status(400)
-        .json({
-          message: "Check-in cannot be later than or equal to check-out",
-        });
+      return res.status(400).json({
+        message: "Check-in cannot be later than or equal to check-out",
+      });
     }
 
     if (newCheckIn <= today && existingBooking.checkIn > today) {
