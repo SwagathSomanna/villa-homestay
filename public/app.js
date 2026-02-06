@@ -465,7 +465,8 @@ function updateBookingTypeUI() {
 
 function initRazorpay(orderData, bookingInfo) {
   // Handle both response structures: orderData.data.order OR orderData.order
-  const order = orderData.data?.order || orderData.order;
+  const order = orderData.data?.razorpayOrder || orderData.order;
+  console.log(order);
 
   if (!order || !order.id || !order.amount) {
     showError("Invalid order data received from server. Please try again.");

@@ -135,45 +135,9 @@ export async function verifyRoomStatus(roomInfo, res) {
   return 1;
 }
 
-const getPrice = async (roomInfo) => {
-  const villaInfo = await Villa.findOne({ name: VILLA_NAME });
-
-  if (!villaInfo) {
-    throw new Error("Villa configuration not found");
-  }
-
-  if (roomInfo.targetType === "villa") {
-    return villaInfo.price * 100; //return in paisa
-  }
-
-  if (roomInfo.targetType === "floor") {
-    const floor = villaInfo.floors.find((f) => f.floorId === roomInfo.floorId);
-
-    if (!floor) {
-      throw new Error("Invalid floor selected");
-    }
-
-    return floor.price * 100;
-  }
-
-  if (roomInfo.targetType === "room") {
-    for (const floor of villaInfo.floors) {
-      const room = floor.rooms.find((r) => r.roomId === roomInfo.roomId);
-
-      if (room) {
-        return room.price * 100;
-      }
-    }
-
-    throw new Error("Invalid room selected");
-  }
-
-  throw new Error("Invalid target type");
-};
-
 //razorpay imports
 import Razorpay from "razorpay";
-
+import { calculateDynamicPrice } from "../utils/pricingHelper.util.js";
 export const bookVilla = async (req, res) => {
   try {
     const accessToken = crypto.randomBytes(32).toString("hex");
@@ -182,8 +146,8 @@ export const bookVilla = async (req, res) => {
     const checkOut = parseDateOnly(req.body.checkOut);
     const today = parseDateOnly(new Date().toISOString().slice(0, 10));
 
+    // Date validations
     if (checkIn >= checkOut) {
-      // validations
       return res
         .status(400)
         .json({ message: "CheckIn cannot be earlier than checkout" });
@@ -193,19 +157,63 @@ export const bookVilla = async (req, res) => {
       return res.status(400).json({ message: "Please select a future date" });
     }
 
-    //verification of adults and children yet to be done
+    // Guest validation
     const guestInfo = req.body.guest;
     if (!guestInfo?.name || !guestInfo?.email || !guestInfo?.phone) {
       return res
-        .status(500)
+        .status(400)
         .json({ message: "Please fill all the required fields" });
     }
 
-    if (Number.isNaN(guestInfo.adults) || Number.isNaN(guestInfo.children)) {
+    if (
+      Number.isNaN(Number(guestInfo.adults)) ||
+      Number.isNaN(Number(guestInfo.children))
+    ) {
       return res.status(400).json({ message: "Invalid guest count" });
     }
 
-    //room availability validations
+    // Get base price from Villa (in RUPEES)
+    const villa = await Villa.findOne();
+    if (!villa) {
+      return res.status(500).json({ message: "Villa configuration not found" });
+    }
+
+    let basePrice; // In RUPEES
+
+    if (req.body.targetType === "villa") {
+      basePrice = villa.price;
+    } else if (req.body.targetType === "floor") {
+      const floor = villa.floors.find((f) => f.floorId === req.body.floorId);
+      if (!floor) {
+        return res.status(400).json({ message: "Invalid floor selected" });
+      }
+      basePrice = floor.price;
+    } else if (req.body.targetType === "room") {
+      const floor = villa.floors.find((f) =>
+        f.rooms.some((r) => r.roomId === req.body.roomId),
+      );
+      if (!floor) {
+        return res.status(400).json({ message: "Invalid room selected" });
+      }
+      const room = floor.rooms.find((r) => r.roomId === req.body.roomId);
+      if (!room) {
+        return res.status(400).json({ message: "Invalid room selected" });
+      }
+      basePrice = room.price;
+    } else {
+      return res.status(400).json({ message: "Invalid target type" });
+    }
+
+    // Calculate dynamic price with pricing rules (in RUPEES)
+    const pricingInfo = await calculateDynamicPrice({
+      basePrice, // RUPEES
+      targetType: req.body.targetType,
+      targetId: req.body.floorId || req.body.roomId,
+      checkIn: checkIn,
+      checkOut: checkOut,
+    });
+
+    // Room availability validation
     const roomInfo = {
       checkIn: checkIn,
       checkOut: checkOut,
@@ -216,65 +224,79 @@ export const bookVilla = async (req, res) => {
 
     const isBookingAvailable = await verifyRoomStatus(roomInfo, res);
     if (!isBookingAvailable) {
-      return null;
+      return; // Response already sent
     }
 
-    //fetching the price of the selected entries from the database
+    // Calculate total price (in RUPEES)
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-    const pricePerNight = await getPrice(roomInfo);
-    const bookingPrice = pricePerNight * nights; // Total for all nights
-    const priceToPay = Math.floor(bookingPrice * 0.5); //pay 25 percent of the price upfront
-    //the order API will generate a unique razorpay toDateString();
+    const totalPrice = pricingInfo.finalPrice * nights; // RUPEES (with pricing rules applied)
+    const amountToPay = Math.floor(totalPrice * 0.5); // 50% upfront (RUPEES)
+
+    // Create Razorpay order (convert to PAISE)
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
     const order = await razorpay.orders.create({
-      amount: priceToPay,
+      amount: amountToPay * 100, // ✅ Convert RUPEES to PAISE here
       currency: "INR",
+      receipt: `receipt_${accessToken.substring(0, 10)}`,
     });
 
-    // console.log("log from boooooking controller", order);
-
+    // Create booking (store everything in RUPEES)
     const createBooking = await Booking.create({
       guest: {
-        ...guestInfo,
+        name: guestInfo.name,
+        email: guestInfo.email,
+        phone: guestInfo.phone,
+        adults: Number(guestInfo.adults),
+        children: Number(guestInfo.children),
       },
       accessToken: accessToken,
       targetType: req.body.targetType,
       floorId: req.body?.floorId,
       roomId: req.body?.roomId,
-
       checkIn: checkIn,
       checkOut: checkOut,
       status: "pending",
       razorpayOrderId: order.id,
+      pricing: {
+        basePrice: pricingInfo.basePrice, // RUPEES per night (base)
+        finalPrice: pricingInfo.finalPrice, // RUPEES per night (with modifiers)
+        totalPrice: totalPrice, // RUPEES total for entire stay
+        paidAmount: 0, // Will update after payment verification
+        remainingAmount: totalPrice, // RUPEES remaining
+        appliedRules: pricingInfo.appliedRules,
+      },
     });
 
-    const createdBooking = await Booking.findById(createBooking._id);
-    if (!createdBooking) {
-      return res
-        .status(500)
-        .json({ message: "Something went wrong while boooking" });
-    }
-
     return res.status(201).json({
-      message: "Booking successful",
+      message: "Booking created successfully",
       data: {
-        name: createdBooking.guest?.name,
-        email: createdBooking.guest?.email,
-        phone: createdBooking.guest?.phone,
-        checkIn: createdBooking.checkIn,
-        checkOut: createdBooking.checkOut,
-        accessToken: createdBooking.accessToken,
-        bookingType: createdBooking.targetType,
-        floorId: createdBooking?.floorId,
-        roomId: createdBooking?.roomId,
-        status: createdBooking?.status,
-        order: {
+        bookingId: createBooking._id,
+        name: createBooking.guest.name,
+        email: createBooking.guest.email,
+        phone: createBooking.guest.phone,
+        checkIn: createBooking.checkIn,
+        checkOut: createBooking.checkOut,
+        nights: nights,
+        accessToken: createBooking.accessToken,
+        bookingType: createBooking.targetType,
+        floorId: createBooking?.floorId,
+        roomId: createBooking?.roomId,
+        status: createBooking.status,
+        pricing: {
+          pricePerNight: pricingInfo.finalPrice, // RUPEES
+          basePrice: pricingInfo.basePrice, // RUPEES
+          totalPrice: totalPrice, // RUPEES
+          amountToPay: amountToPay, // RUPEES (display to user)
+          appliedRules: pricingInfo.appliedRules,
+        },
+        razorpayOrder: {
           id: order.id,
-          amount: order.amount,
+          amount: order.amount, // PAISE (for Razorpay)
+          amountInRupees: amountToPay, // RUPEES (for display)
           currency: order.currency,
         },
       },
