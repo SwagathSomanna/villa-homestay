@@ -15,7 +15,6 @@ import { PORT } from "./constants.js";
 import connectDB from "./db.js";
 
 const app = express();
-const DATA_PATH = path.join(__dirname, "data", "state.json");
 
 app.use(express.json({ limit: "128kb" }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -57,7 +56,25 @@ app.use(
 app.use("/api/admin", adminRouter);
 
 /////////////test ///////
-// import { sendMail } from "./utils/resend.util.js";
-// sendMail().then(() => {
+// import { sendPaymentFailedEmail } from "./utils/resend.util.js";
+// const mockBooking = {
+//   _id: "6985dd5a63e8bfd8dbf49489",
+//
+//   guest: {
+//     name: "Rahul Sharma",
+//     email: "sathwikthanmay4@gmail.com",
+//     adults: 2,
+//     children: 1,
+//   },
+//
+//   checkIn: new Date("2026-02-11"),
+//   checkOut: new Date("2026-02-12"),
+//
+//   pricing: {
+//     totalPrice: 4500,
+//   },
+// };
+//
+// sendPaymentFailedEmail(mockBooking).then(() => {
 //   console.log("mail set");
 // });
