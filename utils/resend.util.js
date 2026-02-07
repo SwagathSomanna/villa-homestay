@@ -1,98 +1,6 @@
 import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API);
 
-// export const sendMailToGuest = async (userInfo) => {
-//   try {
-//     console.log(userInfo, "userinfo log at resend");
-//     const name = userInfo.guest.name;
-//     const email = userInfo.guest.email;
-//     //need to change this later
-//     const bookingUrl = `http://localhost:4000/api/booking/${userInfo.accessToken}`;
-//     const checkIn = userInfo.checkIn;
-//     const checkOut = userInfo.checkOut;
-//     const adults = userInfo.guest.adults;
-//     const children = userInfo.guest.children || 0;
-//
-//     const html = `
-//       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-//         <h2>Booking Confirmed </h2>
-//
-//         <p>Hello, ${name}</p>
-//
-//         <p>
-//           Your stay at <strong>Anudinakuteera Villa</strong> has been successfully confirmed.
-//         </p>
-//
-//         <table style="border-collapse: collapse; margin-top: 10px;">
-//           <tr>
-//             <td><strong>Check-in:</strong></td>
-//             <td>${checkIn}</td>
-//           </tr>
-//           <tr>
-//             <td><strong>Check-out:</strong></td>
-//             <td>${checkOut}</td>
-//           </tr>
-//           <tr>
-//             <td><strong>Guests:</strong></td>
-//             <td>Adults: ${adults}</td>
-//             <td>Children: ${children}</td>
-//           </tr>
-//         </table>
-//
-//         <p style="margin-top: 20px;">
-//           If you have any questions, feel free to reply to this email or contact our support team.
-//           You can reach out to us using the following.
-//           email: deenaprabha93@gmail.com
-//           phone no: +91 9972253584
-//         </p>
-//
-//         <p>
-//           Regards,<br/>
-//           Team Anudinakuteera<br/>
-//           support@mail.anudinakuteera.com
-//         </p>
-//       </div>
-//     `;
-//
-//     const data = await resend.emails.send({
-//       from: "Anudinakuteera Support <support@mail.anudinakuteera.com>",
-//       to: [email, "suryashreevathsa11@gmail.com"],
-//       reply_to: "deenaprabha93@gmail.com",
-//       subject: "Your booking is confirmed – Anudinakuteera",
-//       html,
-//     });
-//
-//     return data;
-//   } catch (error) {
-//     console.error(error);
-//     throw error;
-//   }
-// };
-//
-// export const sendMailToAdmin = async (userinfo) => {
-//   try {
-//     const target = userinfo.targetType;
-//
-//     const html = `
-//     boooking confirmed for ${target} for ${userinfo.checkIn} to ${userinfo.checkOut}.
-//     Guest name : ${userinfo.guest.name}
-//     Guest email : ${userinfo.guest.email}
-//     Guest Phone : ${userinfo.guest.phone}
-// `;
-//     const data = await resend.emails.send({
-//       from: "Anudina Kuteera Support <support@mail.anudinakuteera.com>",
-//       to: "deenaprabha93@gmail.com",
-//       subject: "Booking information",
-//       html,
-//     });
-//
-//     return data;
-//   } catch (error) {
-//     console.error(error);
-//     throw new Error("Error sending mail to admin");
-//   }
-// };
-
 const formatDate = (date) =>
   new Date(date).toLocaleDateString("en-IN", {
     weekday: "short",
@@ -101,7 +9,7 @@ const formatDate = (date) =>
     year: "numeric",
   });
 
-export const sendMailToGuest = async (userInfo) => {
+export const sendConfirmationMailToGuest = async (userInfo) => {
   try {
     // console.log(userInfo, "userinfo log at resend");
     const name = userInfo.guest.name;
@@ -442,11 +350,11 @@ export const sendMailToGuest = async (userInfo) => {
             <div class="guest-info">
               <div class="section-title" style="margin-bottom: 15px;">👥 Guest Information</div>
               <div class="guest-info-row">
-                <span class="guest-info-label">Adults</span>
+                <span class="guest-info-label" style="margin-right: 12px;">Adults</span>
                 <span class="guest-info-value">${adults}</span>
               </div>
               <div class="guest-info-row">
-                <span class="guest-info-label">Children</span>
+                <span class="guest-info-label" style="margin-right: 12px;">Children</span>
                 <span class="guest-info-value">${children === 0 ? "None" : children}</span>
               </div>
             </div>
@@ -497,7 +405,7 @@ export const sendMailToGuest = async (userInfo) => {
   }
 };
 
-export const sendMailToAdmin = async (userinfo) => {
+export const sendConfirmationMailToAdmin = async (userinfo) => {
   try {
     const target = userinfo.targetType;
     const checkIn = formatDate(userinfo.checkIn);
@@ -655,4 +563,81 @@ export const sendMailToAdmin = async (userinfo) => {
     console.error(error);
     throw new Error("Error sending mail to admin");
   }
+};
+
+export const sendPaymentFailedEmail = async (booking) => {
+  const formatDate = (d) =>
+    new Date(d).toLocaleDateString("en-IN", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
+  const name = booking.guest.name;
+  const email = booking.guest.email;
+  const checkIn = formatDate(booking.checkIn);
+  const checkOut = formatDate(booking.checkOut);
+  const adults = booking.guest.adults;
+  const children = booking.guest.children || 0;
+
+  const html = `
+  <!DOCTYPE html>
+  <html>
+  <body style="font-family:'Segoe UI', sans-serif; background:#f5f9f7; padding:20px;">
+
+    <div style="max-width:600px;margin:auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+
+      <!-- Header -->
+      <div style="background:linear-gradient(135deg,#f39c12,#e67e22);padding:40px;text-align:center;color:white;">
+        <h1 style="margin:0;">Payment Not Completed</h1>
+        <p style="margin-top:6px;">Your booking is still reserved</p>
+      </div>
+
+      <!-- Content -->
+      <div style="padding:35px;">
+
+        <p style="font-size:18px;">Hi <strong>${name}</strong>,</p>
+
+        <div style="background:#fff7e6;padding:18px;border-left:4px solid #f39c12;border-radius:6px;margin:20px 0;">
+          We couldn’t complete your payment for your stay at
+          <strong>Anudinakuteera Villa</strong>.
+          Don’t worry — your booking is still saved.
+        </div>
+
+        <!-- Stay details -->
+        <h3 style="color:#2d7a62;">📅 Stay Details</h3>
+        <table width="100%" style="border-collapse:collapse;">
+          <tr><td style="padding:8px 0;font-weight:600;">Check-in</td><td align="right">${checkIn}</td></tr>
+          <tr><td style="padding:8px 0;font-weight:600;">Check-out</td><td align="right">${checkOut}</td></tr>
+          <tr><td style="padding:8px 0;font-weight:600;">Guests</td><td align="right">${adults} Adults, ${children} Children</td></tr>
+          <tr><td style="padding:8px 0;font-weight:600;">Booking ID</td><td align="right">${booking._id}</td></tr>
+        </table>
+
+        <p style="margin-top:25px;">
+          Please return to our website anytime to complete the payment.
+          If you need help, simply reply to this email.
+        </p>
+
+      </div>
+
+      <!-- Footer -->
+      <div style="background:#e8f3f0;padding:25px;text-align:center;color:#2d7a62;">
+        <strong>Anudinakuteera</strong><br/>
+        support@mail.anudinakuteera.com
+      </div>
+
+    </div>
+
+  </body>
+  </html>
+  `;
+
+  await resend.emails.send({
+    from: "Anudinakuteera Support <support@mail.anudinakuteera.com>",
+    to: [email],
+    reply_to: "support@mail.anudinakuteera.com",
+    subject: "Payment incomplete – Your booking is still reserved",
+    html,
+  });
 };

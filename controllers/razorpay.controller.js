@@ -14,10 +14,11 @@
 
 import crypto from "crypto";
 import { Booking } from "../models/booking.model.js";
-
-// ============================================================================
-// WEBHOOK HANDLER
-// ============================================================================
+import {
+  sendConfirmationMailToAdmin,
+  sendConfirmationMailToGuest,
+  sendPaymentFailedEmail,
+} from "../utils/resend.util.js";
 
 /**
  * POST /api/payment/razorpay-webhook
@@ -81,10 +82,7 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
-// ============================================================================
-// WEBHOOK EVENT HANDLERS
-// ============================================================================
-
+//webhook event handlers
 async function handlePaymentCaptured(payload) {
   try {
     const payment = payload.payment.entity;
@@ -108,8 +106,9 @@ async function handlePaymentCaptured(payload) {
 
     console.log("Booking confirmed:", booking._id);
 
-    // TODO: Send confirmation email to guest
-    // await sendBookingConfirmationEmail(booking);
+    // TODO: Send confirmation email to guest | done
+    await sendConfirmationMailToGuest(booking);
+    await sendConfirmationMailToAdmin(booking);
   } catch (error) {
     console.error("Error handling payment captured:", error);
   }
@@ -134,8 +133,7 @@ async function handlePaymentFailed(payload) {
     // Keep status as 'pending' - user can retry payment
     console.log("Payment failed for booking:", booking._id);
 
-    // TODO: Send payment failed notification
-    // await sendPaymentFailedEmail(booking);
+    await sendPaymentFailedEmail(booking);
   } catch (error) {
     console.error("Error handling payment failed:", error);
   }
@@ -172,7 +170,6 @@ async function handleOrderPaid(payload) {
  * This is called from frontend after successful payment
  * to provide immediate feedback to user before webhook arrives
  */
-import { sendMailToGuest, sendMailToAdmin } from "../utils/resend.util.js";
 export const verifyPayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
@@ -210,9 +207,8 @@ export const verifyPayment = async (req, res) => {
     booking.paymentId = razorpay_payment_id;
     await booking.save();
 
-    const guestMail = await sendMailToGuest(booking);
-    console.log(guestMail);
-    await sendMailToAdmin(booking);
+    //  await sendConfirmationMailToGuest(booking);
+    // await sendConfirmationMailToAdmin(booking)
 
     return res.status(200).json({
       success: true,

@@ -380,7 +380,7 @@ function updateBookingSummary() {
     currentFloorId,
     nights,
   );
-  const estimatedDeposit = Math.ceil(estimatedPrice * 0.25);
+  const estimatedDeposit = Math.ceil(estimatedPrice * 0.5);
 
   // Build summary
   let summaryHTML = "";

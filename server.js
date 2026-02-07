@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN_NGROK || "http://localhost:4000",
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
   }),
 );
@@ -63,5 +63,3 @@ app.use("/api/admin", adminRouter);
 // sendMail().then(() => {
 //   console.log("mail set");
 // });
-
-//////////////////////////////////////////////////
