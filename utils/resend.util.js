@@ -366,7 +366,7 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
                 We're here to make your stay extraordinary. If you have any questions or special requests, please don't hesitate to reach out.
                 <div class="contact-item" style="margin-top: 12px;">
                   <span class="contact-label">Email:</span>
-                  <span><a href="mailto:deenaprabha93@gmail.com" style="color: #4a9f7f; text-decoration: none;">deenaprabha93@gmail.com</a></span>
+                  <span><a href="mailto:anudinakuteera23@gmail.com" style="color: #4a9f7f; text-decoration: none;">anudinakuteera23@gmail.com</a></span>
                 </div>
                 <div class="contact-item">
                   <span class="contact-label">Phone:</span>
@@ -393,7 +393,7 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
     const data = await resend.emails.send({
       from: "Anudinakuteera Support <support@mail.anudinakuteera.com>",
       to: [email],
-      reply_to: "deenaprabha93@gmail.com",
+      reply_to: "anudinakuteera23@gmail.com",
       subject: "✨ Your booking is confirmed – Anudinakuteera",
       html,
     });
@@ -636,7 +636,7 @@ export const sendPaymentFailedEmail = async (booking) => {
   await resend.emails.send({
     from: "Anudinakuteera Support <support@mail.anudinakuteera.com>",
     to: [email],
-    reply_to: "support@mail.anudinakuteera.com",
+    reply_to: "anudinakuteera23@gmail.com",
     subject: "Payment incomplete – Your booking is still reserved",
     html,
   });
