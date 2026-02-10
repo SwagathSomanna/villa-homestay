@@ -226,6 +226,12 @@ export const createBlockedDates = async (req, res) => {
   try {
     const { checkIn, checkOut, targetType, floorId, roomId, reason } = req.body;
 
+    if (!checkIn || !checkOut || !targetType) {
+      return res.status(400).json({
+        message: "Missing required fields: checkIn, checkOut, targetType",
+      });
+    }
+
     const parsedCheckIn = parseDateOnly(checkIn);
     const parsedCheckOut = parseDateOnly(checkOut);
     const today = parseDateOnly(new Date().toISOString().slice(0, 10));
@@ -275,13 +281,13 @@ export const createBlockedDates = async (req, res) => {
       });
     }
 
-    // Create blocked booking
+    // Create blocked booking (adults must be >= 1 per schema)
     const blockedBooking = await Booking.create({
       guest: {
         name: "BLOCKED",
         email: "admin@villa.com",
         phone: "0000000000",
-        adults: 0,
+        adults: 1,
         children: 0,
       },
       accessToken: "BLOCKED",

@@ -283,7 +283,7 @@ window.deleteBooking = async function (bookingId, guestName) {
 
   try {
     const response = await fetch(
-      `${API_BASE_URL}/admin/bookings/${bookingId}`,
+      `${API_BASE_URL}/admin/bookings/${bookingId}?permanent=true`,
       {
         method: "DELETE",
         credentials: "include",

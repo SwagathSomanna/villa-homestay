@@ -324,7 +324,12 @@ main {
   color: var(--muted);
   margin: 0;
   font-size: 1rem;
+  font-weight: normal;
   line-height: 1.75;
+}
+
+.boutique-suites-text .rooms-intro + .rooms-intro {
+  margin-top: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -965,6 +970,20 @@ fieldset {
   margin: 0.5rem 0;
 }
 
+.reviews-grid-index .review-card .review-text {
+  font-family: "Inter", sans-serif;
+  font-weight: normal;
+  line-height: 1.6;
+  margin: 0.75rem 0;
+  color: var(--text);
+}
+
+.reviews-grid-index .review-card small {
+  font-family: "Inter", sans-serif;
+  font-weight: normal;
+  color: var(--muted);
+}
+
 .admin {
   padding: 4rem 0 2rem;
 }
@@ -1257,6 +1276,20 @@ footer a {
 .modal-list {
   padding-left: 1.2rem;
   line-height: 1.5;
+}
+
+.modal-price-summary {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: var(--text);
+}
+.modal-price-summary strong {
+  color: var(--accent);
+}
+.modal-price-rules {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 @keyframes pop {

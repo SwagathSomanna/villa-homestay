@@ -319,6 +319,78 @@ function formatDate(date) {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ * Get price quote for selected dates and target (room/floor/villa).
+ * Applies seasonal pricing rules so frontend can display correct total before payment.
+ */
+export const getPriceQuote = async (req, res) => {
+  try {
+    const checkIn = parseDateOnly(req.body.checkIn);
+    const checkOut = parseDateOnly(req.body.checkOut);
+    const today = parseDateOnly(new Date().toISOString().slice(0, 10));
+
+    if (checkIn >= checkOut) {
+      return res.status(400).json({ message: "Check-in must be before check-out" });
+    }
+    if (checkIn <= today) {
+      return res.status(400).json({ message: "Please select a future date" });
+    }
+
+    const targetType = req.body.targetType;
+    if (!targetType || !TARGET_TYPE.includes(targetType)) {
+      return res.status(400).json({ message: "Invalid booking type" });
+    }
+
+    const villa = await Villa.findOne();
+    if (!villa) {
+      return res.status(500).json({ message: "Villa configuration not found" });
+    }
+
+    let basePrice;
+    if (targetType === "villa") {
+      basePrice = villa.price;
+    } else if (targetType === "floor") {
+      const floor = villa.floors.find((f) => f.floorId === req.body.floorId);
+      if (!floor) return res.status(400).json({ message: "Invalid floor selected" });
+      basePrice = floor.price;
+    } else if (targetType === "room") {
+      const floor = villa.floors.find((f) =>
+        f.rooms.some((r) => r.roomId === req.body.roomId),
+      );
+      if (!floor) return res.status(400).json({ message: "Invalid room selected" });
+      const room = floor.rooms.find((r) => r.roomId === req.body.roomId);
+      if (!room) return res.status(400).json({ message: "Invalid room selected" });
+      basePrice = room.price;
+    } else {
+      return res.status(400).json({ message: "Invalid target type" });
+    }
+
+    const pricingInfo = await calculateDynamicPrice({
+      basePrice,
+      targetType,
+      targetId: req.body.floorId || req.body.roomId,
+      checkIn,
+      checkOut,
+    });
+
+    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+    const totalPrice = pricingInfo.finalPrice * nights;
+    const depositAmount = Math.floor(totalPrice * 0.5);
+
+    return res.status(200).json({
+      basePrice: pricingInfo.basePrice,
+      finalPrice: pricingInfo.finalPrice,
+      totalPrice,
+      nights,
+      depositAmount,
+      appliedRules: pricingInfo.appliedRules || [],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
 export const getBookedDates = async (req, res) => {
   try {
     const { targetType, roomId, floorId, startDate, endDate } = req.query;

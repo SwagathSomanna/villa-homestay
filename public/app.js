@@ -121,6 +121,32 @@ async function checkAvailability(
   }
 }
 
+// Fetch price quote (base + seasonal rules) for selected dates and target
+async function fetchPriceQuote(checkIn, checkOut, targetType, roomId, floorId) {
+  try {
+    const body = {
+      checkIn: formatDate(checkIn),
+      checkOut: formatDate(checkOut),
+      targetType,
+    };
+    if (targetType === "room" && roomId) body.roomId = roomId;
+    if (targetType === "floor" && floorId) body.floorId = floorId;
+
+    const response = await fetch(`${API_BASE_URL}/booking/price-quote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Failed to get price");
+    return data;
+  } catch (error) {
+    console.error("Error fetching price quote:", error);
+    return null;
+  }
+}
+
 // Create booking
 async function createBooking(bookingData) {
   try {
@@ -211,6 +237,7 @@ let currentBookingType = "room";
 let currentRoomId = "R1"; // Maps to 'robusta'
 let currentFloorId = "F1";
 let pendingBookingData = null;
+let lastPriceQuote = null; // Total, deposit, appliedRules (for terms modal)
 let bookedDateRanges = []; // Store booked dates for current selection
 let availabilityCheckTimeout = null; // Debounce availability checks
 
@@ -389,7 +416,7 @@ function hideError() {
   formErrors.classList.add("hidden");
 }
 
-function updateBookingSummary() {
+async function updateBookingSummary() {
   const checkIn = checkInInput.value ? parseDateOnly(checkInInput.value) : null;
   const checkOut = checkOutInput.value
     ? parseDateOnly(checkOutInput.value)
@@ -408,19 +435,29 @@ function updateBookingSummary() {
   const adults = parseInt(adultCountInput.value) || 0;
   const children = parseInt(childCountInput.value) || 0;
 
-  // Calculate estimated price (actual price comes from backend)
-  const estimatedPrice = calculateEstimatedPrice(
+  // Fetch price from backend (includes seasonal pricing rules)
+  const quote = await fetchPriceQuote(
+    checkIn,
+    checkOut,
     currentBookingType,
     currentRoomId,
     currentFloorId,
-    nights,
   );
-  const estimatedDeposit = Math.ceil(estimatedPrice * 0.5);
+
+  const totalPrice = quote
+    ? quote.totalPrice
+    : calculateEstimatedPrice(
+        currentBookingType,
+        currentRoomId,
+        currentFloorId,
+        nights,
+      );
+  const pricePerNight = quote ? quote.finalPrice : totalPrice / nights;
+  const depositAmount = quote ? quote.depositAmount : Math.ceil(totalPrice * 0.5);
 
   // Build summary
   let summaryHTML = "";
 
-  // Booking type
   let bookingTypeText = "";
   if (currentBookingType === "villa") {
     bookingTypeText = "Entire Villa";
@@ -438,21 +475,33 @@ function updateBookingSummary() {
   }
   summaryHTML += `<li><strong>Booking:</strong> ${bookingTypeText}</li>`;
 
-  // Dates
   summaryHTML += `<li><strong>Check-in:</strong> ${checkIn.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</li>`;
   summaryHTML += `<li><strong>Check-out:</strong> ${checkOut.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</li>`;
   summaryHTML += `<li><strong>Duration:</strong> ${nights} night${nights !== 1 ? "s" : ""}</li>`;
 
-  // Guests
   summaryHTML += `<li><strong>Guests:</strong> ${adults} adult${adults !== 1 ? "s" : ""}${children > 0 ? `, ${children} child${children !== 1 ? "ren" : ""}` : ""}</li>`;
 
-  // Price breakdown (estimated)
-  const pricePerNight = nights > 0 ? estimatedPrice / nights : 0;
   summaryHTML += `<li><strong>Rate:</strong> ₹${pricePerNight.toLocaleString("en-IN")} × ${nights} night${nights !== 1 ? "s" : ""}</li>`;
+  if (quote && quote.appliedRules && quote.appliedRules.length > 0) {
+    const rulesText = quote.appliedRules
+      .map((r) => (r.type === "fixed" ? `${r.name} (+₹${r.modifier?.toLocaleString("en-IN")})` : `${r.name} (+${r.modifier}%)`))
+      .join(", ");
+    summaryHTML += `<li><strong>Includes:</strong> ${rulesText}</li>`;
+  }
 
   summaryList.innerHTML = summaryHTML;
-  totalPriceDisplay.textContent = `₹${estimatedPrice.toLocaleString("en-IN")}`;
-  depositPriceDisplay.textContent = `₹${estimatedDeposit.toLocaleString("en-IN")}`;
+  totalPriceDisplay.textContent = `₹${totalPrice.toLocaleString("en-IN")}`;
+  depositPriceDisplay.textContent = `₹${depositAmount.toLocaleString("en-IN")}`;
+
+  // Store for terms modal (Reserve and Pay)
+  lastPriceQuote = quote
+    ? {
+        totalPrice,
+        depositAmount,
+        pricePerNight,
+        appliedRules: quote.appliedRules || [],
+      }
+    : null;
 }
 
 function updateBookingTypeUI() {
@@ -651,6 +700,30 @@ async function checkPaymentStatus(accessToken) {
 // ============================================================================
 
 function showTermsModal() {
+  // Show price in modal (same as sidebar – includes seasonal rules)
+  const totalEl = document.getElementById("termsTotalPrice");
+  const depositEl = document.getElementById("termsDepositPrice");
+  const rulesEl = document.getElementById("termsAppliedRules");
+  if (totalEl && depositEl) {
+    if (lastPriceQuote) {
+      totalEl.textContent = `₹${lastPriceQuote.totalPrice.toLocaleString("en-IN")}`;
+      depositEl.textContent = `₹${lastPriceQuote.depositAmount.toLocaleString("en-IN")}`;
+      if (rulesEl && lastPriceQuote.appliedRules && lastPriceQuote.appliedRules.length > 0) {
+        const rulesText = lastPriceQuote.appliedRules
+          .map((r) => (r.type === "fixed" ? `${r.name} (+₹${(r.modifier ?? 0).toLocaleString("en-IN")})` : `${r.name} (+${r.modifier}%)`))
+          .join(", ");
+        rulesEl.textContent = `Includes: ${rulesText}`;
+        rulesEl.classList.remove("hidden");
+      } else if (rulesEl) {
+        rulesEl.classList.add("hidden");
+      }
+    } else {
+      totalEl.textContent = totalPriceDisplay?.textContent || "₹0";
+      depositEl.textContent = depositPriceDisplay?.textContent || "₹0";
+      if (rulesEl) rulesEl.classList.add("hidden");
+    }
+  }
+
   termsModal.classList.remove("hidden");
   modalBackdrop.classList.remove("hidden");
   document.body.style.overflow = "hidden";
@@ -1205,15 +1278,5 @@ async function loadGallery() {
   }
 }
 
-// Load reviews (if you have a backend endpoint)
-async function loadReviews() {
-  // TODO: Implement reviews loading
-  const reviewsGrid = document.getElementById("reviewsGridIndex");
-  if (reviewsGrid) {
-    reviewsGrid.innerHTML = "<p>Reviews loading...</p>";
-  }
-}
-
 // Call these if needed
 // loadGallery();
-// loadReviews();

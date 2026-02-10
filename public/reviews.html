@@ -12,10 +12,29 @@
         rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
     <style>
+        .reviews-page { background: var(--bg); min-height: 100vh; }
+
+        .reviews-nav {
+            padding: 1rem clamp(1rem, 5vw, 4rem);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card);
+            border-bottom: 1px solid var(--line);
+        }
+        .reviews-nav .logo { color: var(--text); font-family: 'Playfair Display', serif; font-weight: 600; }
+        .reviews-nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+        .reviews-nav a:hover { color: var(--accent); }
 
         .reviews-hero {
-            min-height: 40vh;
-            background: url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1600&q=80') center/cover;
+            min-height: 36vh;
+            background: linear-gradient(135deg, var(--accent-dark) 0%, var(--accent) 50%, rgba(154, 107, 49, 0.85) 100%),
+                url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1600&q=80') center/cover;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -23,60 +42,91 @@
             text-align: center;
             padding: 3rem 1rem;
         }
+        .reviews-hero .eyebrow {
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 0.25em;
+            margin-bottom: 0.5rem;
+        }
+        .reviews-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.5rem, 4vw, 2.25rem);
+            margin: 0;
+            max-width: 640px;
+            line-height: 1.3;
+        }
 
+        .reviews-main {
+            padding: 3rem clamp(1rem, 5vw, 5rem) 4rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
         .reviews-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
-            padding: 3rem clamp(1rem, 5vw, 5rem);
         }
-
         .review-card {
-            background: #fff;
+            background: var(--card);
             border-radius: 1.2rem;
-            padding: 1.5rem;
+            padding: 1.5rem 1.75rem;
             box-shadow: 0 20px 70px rgba(0, 0, 0, 0.08);
+            font-family: 'Inter', sans-serif;
+            border: 1px solid var(--line);
         }
-
         .review-card h3 {
             margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--accent);
         }
-
-        .rating {
+        .review-card .review-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: normal;
+            line-height: 1.6;
+            margin: 0.75rem 0;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        .review-card small {
+            font-family: 'Inter', sans-serif;
+            font-weight: normal;
+            color: var(--muted);
+            font-size: 0.875rem;
+        }
+        .review-card .rating {
             color: var(--accent);
             font-weight: 600;
+            margin: 0.25rem 0 0.5rem;
         }
-
-        nav {
-            padding: 1rem clamp(1rem, 5vw, 5rem);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .reviews-footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--line);
         }
-
-        nav a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 600;
-        }
+        .reviews-footer a { color: var(--accent); text-decoration: none; }
+        .reviews-footer a:hover { text-decoration: underline; }
     </style>
 </head>
 
-<body>
-    <nav>
+<body class="reviews-page">
+    <nav class="reviews-nav">
         <div class="logo">Anudina Kuteera</div>
         <a href="index.html">← Back to rooms</a>
     </nav>
     <header class="reviews-hero">
         <div>
             <p class="eyebrow">Testimonial Wall</p>
-            <h1>Reviews curated from Google, Airbnb & Booking.com.</h1>
+            <h1>Reviews from Google, Airbnb & Booking.com</h1>
         </div>
     </header>
 
-    <main class="reviews-grid" id="reviewsGrid"></main>
+    <main class="reviews-main">
+        <div class="reviews-grid" id="reviewsGrid"></div>
+    </main>
 
-    <footer>
+    <footer class="reviews-footer">
         <p>&copy; <span id="year"></span> Anudina Kuteera · <a href="index.html">Return to main site</a></p>
     </footer>
 
