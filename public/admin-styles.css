@@ -785,6 +785,44 @@ textarea.form-control {
   box-shadow: 0 0 0 3px rgba(154, 107, 49, 0.12);
 }
 
+.password-field-wrap {
+  position: relative;
+}
+
+.password-field-wrap .login-input {
+  margin-bottom: 0;
+  padding-right: 2.75rem;
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle-icon:hover {
+  color: var(--text);
+}
+
+.password-toggle-icon svg {
+  display: block;
+}
+
+.password-toggle-icon .hidden {
+  display: none !important;
+}
+
 .login-btn {
   margin-top: 0.5rem;
   border-radius: 999px;

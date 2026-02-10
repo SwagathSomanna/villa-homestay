@@ -121,6 +121,26 @@ function initCustomCursor() {
   }, true);
 }
 
+// Password visibility toggle (icon inside field)
+const togglePasswordBtn = document.getElementById("togglePasswordVisibility");
+const iconShow = togglePasswordBtn?.querySelector(".icon-show");
+const iconHide = togglePasswordBtn?.querySelector(".icon-hide");
+if (passwordInput && togglePasswordBtn) {
+  togglePasswordBtn.addEventListener("click", () => {
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      togglePasswordBtn.setAttribute("aria-label", "Hide password");
+      if (iconShow) iconShow.classList.add("hidden");
+      if (iconHide) iconHide.classList.remove("hidden");
+    } else {
+      passwordInput.type = "password";
+      togglePasswordBtn.setAttribute("aria-label", "Show password");
+      if (iconShow) iconShow.classList.remove("hidden");
+      if (iconHide) iconHide.classList.add("hidden");
+    }
+  });
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => { checkAuth(); initCustomCursor(); });
 } else {

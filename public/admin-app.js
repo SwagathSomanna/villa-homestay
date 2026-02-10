@@ -44,7 +44,7 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
     console.error("Logout failed", err);
   }
 
-  window.location.href = "admin-login.html";
+  window.location.replace("index.html");
 });
 
 // ============================================================================
@@ -795,6 +795,11 @@ async function initAdmin() {
     .toISOString()
     .split("T")[0];
 }
+
+// Re-validate auth when page is restored from back-forward cache
+window.addEventListener("pageshow", (e) => {
+  if (e.persisted) checkAuth();
+});
 
 // Start the admin panel
 if (document.readyState === "loading") {
