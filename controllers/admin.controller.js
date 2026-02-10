@@ -1,6 +1,4 @@
-import jwt from "jsonwebtoken";
 import { Booking } from "../models/booking.model.js";
-import { Villa } from "../models/villa.model.js";
 import { PricingRule } from "../models/pricingRule.model.js";
 
 function parseDateOnly(str) {
