@@ -42,6 +42,7 @@ import bookingRouter from "./routes/booking.route.js";
 import villaRouter from "./routes/villa.routes.js";
 import razorpayRouter from "./routes/razorpay.route.js";
 import adminRouter from "./routes/admin.route.js";
+import adminLoginRouter from "./routes/admin.auth.route.js";
 
 app.use("/api/booking", bookingRouter);
 app.use("/api/villa", villaRouter);
@@ -53,6 +54,7 @@ app.use(
 );
 
 /// admin routes
+app.use("/api/admin", adminLoginRouter);
 app.use("/api/admin", adminRouter);
 
 /////////////test ///////

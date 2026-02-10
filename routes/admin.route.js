@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middleware/admin.midddleware.js";
 import {
-  login,
   getBooking,
   updateBooking,
   deleteBooking,
@@ -14,8 +13,6 @@ import {
 } from "../controllers/admin.controller.js";
 
 const router = Router();
-
-router.post("/login", login);
 
 router.get("/bookings", verifyJWT, getBooking); // Get all bookings
 router.patch("/bookings/:bookingId", verifyJWT, updateBooking); // Update booking
