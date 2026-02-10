@@ -14,12 +14,17 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
     // console.log(userInfo, "userinfo log at resend");
     const name = userInfo.guest.name;
     const email = userInfo.guest.email;
-    //if needed use below
-    // const bookingUrl = `http://localhost:4000/api/booking/${userInfo.accessToken}`;
+    const phone = userInfo.guest.phone || "N/A";
     const checkIn = formatDate(userInfo.checkIn);
     const checkOut = formatDate(userInfo.checkOut);
     const adults = userInfo.guest.adults;
     const children = userInfo.guest.children || 0;
+    const totalGuests = adults + children;
+    const accessToken = userInfo.accessToken;
+    const bookingId =
+      userInfo.bookingId || accessToken.substring(0, 8).toUpperCase();
+    const accommodation = userInfo.accommodation || "Entire Villa";
+    const totalAmount = userInfo.totalAmount || "As per booking";
 
     const html = `
       <!DOCTYPE html>
@@ -98,42 +103,30 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
           }
           
           .greeting {
-            font-size: 18px;
+            font-size: 16px;
             color: #2d5a54;
-            margin-bottom: 25px;
-            font-weight: 500;
-          }
-          
-          .greeting strong {
-            color: #4a9f7f;
-          }
-          
-          .confirmation-text {
-            background: linear-gradient(135deg, rgba(74, 159, 127, 0.05), rgba(232, 243, 240, 0.5));
-            padding: 20px;
-            border-left: 4px solid #4a9f7f;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            color: #2d5a54;
+            margin-bottom: 20px;
             line-height: 1.7;
           }
           
-          .confirmation-text strong {
-            color: #2d7a62;
+          .intro-text {
+            font-size: 15px;
+            color: #2d5a54;
+            margin-bottom: 30px;
+            line-height: 1.7;
           }
           
-          .details-section {
-            margin-bottom: 35px;
+          .section {
+            margin-bottom: 30px;
           }
           
           .section-title {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 17px;
+            font-weight: 700;
             color: #2d7a62;
             margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0ebe8;
           }
           
           .details-table {
@@ -152,102 +145,120 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
           .details-table td {
             padding: 12px 0;
             color: #2d5a54;
+            font-size: 14px;
           }
           
           .details-table td:first-child {
             font-weight: 600;
             color: #2d7a62;
-            width: 40%;
+            width: 50%;
           }
           
           .details-table td:last-child {
             text-align: right;
           }
           
-          .guest-info {
-            background: #f5f9f7;
+          .info-box {
+            background: #fff9e6;
             padding: 20px;
             border-radius: 8px;
+            border-left: 4px solid #f5c842;
             margin-bottom: 30px;
           }
           
-          .guest-info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            color: #2d5a54;
-          }
-          
-          .guest-info-row:last-child {
-            margin-bottom: 0;
-          }
-          
-          .guest-info-label {
-            font-weight: 600;
-            color: #2d7a62;
-          }
-          
-          .guest-info-value {
-            color: #2d5a54;
-          }
-          
-          .cta-section {
-            margin-bottom: 30px;
-            text-align: center;
-          }
-          
-          .cta-button {
-            display: inline-block;
-            background: linear-gradient(135deg, #4a9f7f 0%, #2d7a62 100%);
-            color: white;
-            padding: 14px 32px;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 12px rgba(74, 159, 127, 0.3);
-          }
-          
-          .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(74, 159, 127, 0.4);
-          }
-          
-          .support-section {
-            background: #f5f9f7;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border-left: 4px solid #a8d4c7;
-          }
-          
-          .support-title {
-            font-weight: 600;
-            color: #2d7a62;
-            margin-bottom: 12px;
+          .info-box-title {
+            font-weight: 700;
+            color: #9a7b2e;
+            margin-bottom: 10px;
             font-size: 15px;
           }
           
-          .support-content {
+          .info-box-content {
+            font-size: 14px;
+            color: #5a5a5a;
+            line-height: 1.7;
+          }
+          
+          .policy-box {
+            background: #f5f9f7;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #a8d4c7;
+            margin-bottom: 30px;
+          }
+          
+          .policy-title {
+            font-weight: 700;
+            color: #2d7a62;
+            margin-bottom: 10px;
+            font-size: 15px;
+          }
+          
+          .policy-content {
             font-size: 14px;
             color: #2d5a54;
             line-height: 1.8;
           }
           
-          .contact-item {
-            margin-bottom: 10px;
-            display: flex;
-            gap: 8px;
+          .policy-item {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
           }
           
-          .contact-item:last-child {
-            margin-bottom: 0;
+          .policy-item:before {
+            content: '•';
+            position: absolute;
+            left: 5px;
+            color: #4a9f7f;
+            font-weight: bold;
+          }
+          
+          .contact-box {
+            background: linear-gradient(135deg, rgba(74, 159, 127, 0.05), rgba(232, 243, 240, 0.5));
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4a9f7f;
+            margin-bottom: 30px;
+          }
+          
+          .contact-title {
+            font-weight: 700;
+            color: #2d7a62;
+            margin-bottom: 12px;
+            font-size: 15px;
+          }
+          
+          .contact-item {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #2d5a54;
           }
           
           .contact-label {
-            font-weight: 500;
+            font-weight: 600;
             color: #2d7a62;
-            min-width: 60px;
+            display: inline-block;
+            min-width: 140px;
+          }
+          
+          .closing-text {
+            font-size: 14px;
+            color: #2d5a54;
+            line-height: 1.7;
+            margin-bottom: 20px;
+          }
+          
+          .signature {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #2d5a54;
+            line-height: 1.8;
+          }
+          
+          .signature-name {
+            font-weight: 600;
+            color: #2d7a62;
           }
           
           .footer {
@@ -271,19 +282,14 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
             margin-bottom: 8px;
           }
           
-          .footer-email {
+          .footer-link {
             font-size: 12px;
             color: #4a9f7f;
             text-decoration: none;
           }
           
-          .footer-email:hover {
+          .footer-link:hover {
             text-decoration: underline;
-          }
-          
-          .peace-icon {
-            font-size: 24px;
-            margin-bottom: 10px;
           }
           
           @media (max-width: 600px) {
@@ -303,9 +309,14 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
               text-align: left;
             }
             
-            .guest-info-row {
-              flex-direction: column;
-              gap: 4px;
+            .details-table td:first-child {
+              width: auto;
+            }
+            
+            .contact-label {
+              display: block;
+              min-width: auto;
+              margin-bottom: 2px;
             }
           }
         </style>
@@ -314,75 +325,150 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
         <div class="container">
           <!-- Header -->
           <div class="header">
-            <div class="peace-icon">🌿</div>
-            <h1>Booking Confirmed!</h1>
-            <p>Your serene getaway awaits</p>
+            <h1>Booking Confirmed</h1>
+            <p>We look forward to hosting you</p>
           </div>
           
           <!-- Content -->
           <div class="content">
             <!-- Greeting -->
             <div class="greeting">
-              Welcome, <strong>${name}!</strong>
+              Dear <strong>${name}</strong>,
             </div>
             
-            <!-- Confirmation Message -->
-            <div class="confirmation-text">
-              Your stay at <strong>Anudinakuteera Villa</strong> has been successfully confirmed. We're thrilled to welcome you to our peaceful sanctuary nestled in nature. Get ready for an unforgettable experience of tranquility and comfort.
+            <!-- Introduction -->
+            <div class="intro-text">
+              Thank you for choosing Anudina Kuteera. Your booking has been successfully confirmed and we look forward to hosting you.
             </div>
             
             <!-- Booking Details -->
-            <div class="details-section">
-              <div class="section-title">📅 Your Stay Details</div>
+            <div class="section">
+              <div class="section-title">Booking Details</div>
               <table class="details-table">
                 <tr>
-                  <td>Check-in</td>
+                  <td>Booking Reference</td>
+                  <td>${bookingId}</td>
+                </tr>
+                <tr>
+                  <td>Property</td>
+                  <td>Anudina Kuteera, Coorg</td>
+                </tr>
+                <tr>
+                  <td>Check-in Date</td>
                   <td>${checkIn}</td>
                 </tr>
                 <tr>
-                  <td>Check-out</td>
+                  <td>Check-out Date</td>
                   <td>${checkOut}</td>
+                </tr>
+                <tr>
+                  <td>Check-in Time</td>
+                  <td>2:00 PM</td>
+                </tr>
+                <tr>
+                  <td>Check-out Time</td>
+                  <td>11:00 AM</td>
+                </tr>
+                <tr>
+                  <td>Number of Guests</td>
+                  <td>${totalGuests} (${adults} Adult${adults > 1 ? "s" : ""}${children > 0 ? ", " + children + " Child" + (children > 1 ? "ren" : "") : ""})</td>
+                </tr>
+                <tr>
+                  <td>Accommodation Booked</td>
+                  <td>${accommodation}</td>
+                </tr>
+                <tr>
+                  <td>Total Amount Paid</td>
+                  <td>${totalAmount}</td>
                 </tr>
               </table>
             </div>
             
             <!-- Guest Information -->
-            <div class="guest-info">
-              <div class="section-title" style="margin-bottom: 15px;">👥 Guest Information</div>
-              <div class="guest-info-row">
-                <span class="guest-info-label" style="margin-right: 12px;">Adults</span>
-                <span class="guest-info-value">${adults}</span>
-              </div>
-              <div class="guest-info-row">
-                <span class="guest-info-label" style="margin-right: 12px;">Children</span>
-                <span class="guest-info-value">${children === 0 ? "None" : children}</span>
+            <div class="section">
+              <div class="section-title">Guest Information</div>
+              <table class="details-table">
+                <tr>
+                  <td>Primary Contact Name</td>
+                  <td>${name}</td>
+                </tr>
+                <tr>
+                  <td>Phone Number</td>
+                  <td>${phone}</td>
+                </tr>
+                <tr>
+                  <td>Email</td>
+                  <td>${email}</td>
+                </tr>
+                <tr>
+                  <td>Booking Access Token</td>
+                  <td style="font-family: 'Courier New', monospace; font-size: 12px; word-break: break-all;">${accessToken}</td>
+                </tr>
+              </table>
+            </div>
+            
+            <!-- Important Information -->
+            <div class="info-box">
+              <div class="info-box-title">Important Information</div>
+              <div class="info-box-content">
+                Please carry a valid government-issued photo identification for all guests at the time of check-in.
               </div>
             </div>
             
-            <!-- Support Section -->
-            <div class="support-section">
-              <div class="support-title">✨ Need Assistance?</div>
-              <div class="support-content">
-                We're here to make your stay extraordinary. If you have any questions or special requests, please don't hesitate to reach out.
-                <div class="contact-item" style="margin-top: 12px;">
-                  <span class="contact-label">Email:</span>
-                  <span><a href="mailto:anudinakuteera23@gmail.com" style="color: #4a9f7f; text-decoration: none;">anudinakuteera23@gmail.com</a></span>
-                </div>
-                <div class="contact-item">
-                  <span class="contact-label">Phone:</span>
-                  <span><a href="tel:+919972253584" style="color: #4a9f7f; text-decoration: none;">+91 9972253584</a></span>
+            <!-- Cancellation Policy -->
+            <div class="policy-box">
+              <div class="policy-title">Cancellation Policy</div>
+              <div class="policy-content">
+                To cancel a booking, please contact the property administration directly using the details below.
+                <div style="margin-top: 12px;">
+                  <div class="policy-item">Cancellations made 15 days or more prior to the check-in date are eligible for a 100% refund.</div>
+                  <div class="policy-item">Cancellations made within 15 days of the check-in date are not eligible for a refund.</div>
                 </div>
               </div>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="contact-box">
+              <div class="contact-title">For Cancellations or Assistance</div>
+              <div class="contact-item">
+                <span class="contact-label">Admin Contact Name:</span>
+                <span>Anudina Kuteera Admin</span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Phone:</span>
+                <span><a href="tel:+919972253584" style="color: #4a9f7f; text-decoration: none;">+91 9972253584</a></span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Email:</span>
+                <span><a href="mailto:anudinakuteera23@gmail.com" style="color: #4a9f7f; text-decoration: none;">anudinakuteera23@gmail.com</a></span>
+              </div>
+            </div>
+            
+            <!-- Closing Text -->
+            <div class="closing-text">
+              If you have any special requests or updates regarding your arrival time, please inform us in advance.
+            </div>
+            
+            <div class="closing-text">
+              We look forward to welcoming you to Anudina Kuteera.
+            </div>
+            
+            <!-- Signature -->
+            <div class="signature">
+              <div style="margin-bottom: 5px;">Warm regards,</div>
+              <div class="signature-name">Anudina Kuteera Team</div>
+              <div style="margin-top: 8px;">Anudina Kuteera</div>
+              <div><a href="tel:+919972253584" style="color: #4a9f7f; text-decoration: none;">+91 9972253584</a></div>
             </div>
           </div>
           
           <!-- Footer -->
           <div class="footer">
-            <div class="footer-logo">Anudinakuteera</div>
+            <div class="footer-logo">Anudina Kuteera</div>
             <div class="footer-text">Where Nature Meets Comfort</div>
-            <a href="mailto:support@mail.anudinakuteera.com" class="footer-email">support@mail.anudinakuteera.com</a>
+            <a href="mailto:support@mail.anudinakuteera.com" class="footer-link">support@mail.anudinakuteera.com</a>
             <div class="footer-text" style="margin-top: 15px; font-size: 11px; color: #7a9f9a;">
-              Thank you for choosing our villa. We look forward to hosting you!
+              Thank you for choosing our villa
             </div>
           </div>
         </div>
@@ -394,7 +480,7 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
       from: "Anudinakuteera Support <support@mail.anudinakuteera.com>",
       to: [email],
       reply_to: "anudinakuteera23@gmail.com",
-      subject: "✨ Your booking is confirmed – Anudinakuteera",
+      subject: "Booking Confirmed - Anudina Kuteera, Coorg",
       html,
     });
 
@@ -638,6 +724,49 @@ export const sendPaymentFailedEmail = async (booking) => {
     to: [email],
     reply_to: "anudinakuteera23@gmail.com",
     subject: "Payment incomplete – Your booking is still reserved",
+    html,
+  });
+};
+
+export const sendAdminOTPEmail = async (email, otp) => {
+  const html = `
+  <html>
+  <body style="font-family:Arial;background:#f6f8fa;padding:30px;">
+    <div style="max-width:600px;margin:auto;background:white;border-radius:8px;overflow:hidden">
+
+      <div style="padding:40px;text-align:center">
+        <h2 style="margin:0">Admin Login Verification</h2>
+        <p style="color:#666">Use this OTP to complete your login</p>
+
+        <div style="
+          font-size:32px;
+          font-weight:bold;
+          letter-spacing:8px;
+          margin:25px 0;
+          color:#2d7a62;">
+          ${otp}
+        </div>
+
+        <p style="color:#999;font-size:14px">
+          Valid for 5 minutes. Do not share this code.
+        </p>
+      </div>
+
+      <div style="background:#e8f3f0;padding:25px;text-align:center;color:#2d7a62;">
+        <strong>Anudinakuteera</strong><br/>
+        support@mail.anudinakuteera.com
+      </div>
+
+    </div>
+  </body>
+  </html>
+  `;
+
+  await resend.emails.send({
+    from: "Anudinakuteera Support <support@mail.anudinakuteera.com>",
+    to: [email],
+    reply_to: "anudinakuteera23@gmail.com",
+    subject: "Your Admin Login OTP",
     html,
   });
 };
