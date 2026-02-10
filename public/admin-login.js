@@ -81,4 +81,49 @@ async function checkAuth() {
   }
 }
 
-checkAuth();
+// Custom cursor – same effect as main page
+function initCustomCursor() {
+  const hasFinPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (!hasFinPointer) return;
+
+  const cursorDot = document.querySelector(".pointer-dot");
+  const cursorGlow = document.querySelector(".pointer-glow");
+  const cursorTrail = document.querySelector(".pointer-trail");
+  if (!cursorDot || !cursorGlow || !cursorTrail) return;
+
+  document.body.classList.add("custom-cursor-enabled");
+  let mouseX = 0, mouseY = 0, trailX = 0, trailY = 0;
+
+  document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursorDot.style.left = mouseX + "px";
+    cursorDot.style.top = mouseY + "px";
+    cursorGlow.style.left = mouseX + "px";
+    cursorGlow.style.top = mouseY + "px";
+  });
+
+  function animateTrail() {
+    trailX += (mouseX - trailX) * 0.1;
+    trailY += (mouseY - trailY) * 0.1;
+    cursorTrail.style.left = trailX + "px";
+    cursorTrail.style.top = trailY + "px";
+    requestAnimationFrame(animateTrail);
+  }
+  animateTrail();
+
+  const interactive = "a, button, input, select, label";
+  document.addEventListener("mouseenter", (e) => {
+    if (e.target.matches(interactive)) cursorGlow.classList.add("active");
+  }, true);
+  document.addEventListener("mouseleave", (e) => {
+    if (e.target.matches(interactive)) cursorGlow.classList.remove("active");
+  }, true);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => { checkAuth(); initCustomCursor(); });
+} else {
+  checkAuth();
+  initCustomCursor();
+}

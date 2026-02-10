@@ -70,7 +70,7 @@ async function fetchBookedDates(
     if (targetType === "floor" && floorId) params.append("floorId", floorId);
 
     const response = await fetch(
-      a`${API_BASE_URL}/booking/booked-dates?${params.toString()}`,
+      `${API_BASE_URL}/booking/booked-dates?${params.toString()}`,
     );
 
     if (!response.ok) throw new Error("Failed to fetch booked dates");
@@ -226,6 +226,41 @@ const floorNameToId = {
   ground: "F1",
   top: "F2",
 };
+
+// Guest limits per room/floor (max adults, max children)
+const ROOM_GUEST_LIMITS = {
+  R1: { maxAdults: 4, maxChildren: 2 },   // Robusta
+  R2: { maxAdults: 3, maxChildren: 2 },   // Arabica
+  R3: { maxAdults: 3, maxChildren: 1 },   // Excelsa (TF - 1 child per room)
+  R4: { maxAdults: 3, maxChildren: 1 },   // Liberica (TF - 1 child per room)
+};
+const FLOOR_GUEST_LIMITS = {
+  F1: { maxAdults: 7, maxChildren: 4 },   // Ground Floor (Robusta + Arabica)
+  F2: { maxAdults: 7, maxChildren: 2 },    // Top Floor (1 child per room × 2 rooms)
+};
+const VILLA_GUEST_LIMITS = { maxAdults: 7, maxChildren: 4 };
+
+function getGuestLimits() {
+  if (currentBookingType === "villa") return VILLA_GUEST_LIMITS;
+  if (currentBookingType === "floor") return FLOOR_GUEST_LIMITS[currentFloorId] || VILLA_GUEST_LIMITS;
+  return ROOM_GUEST_LIMITS[currentRoomId] || { maxAdults: 4, maxChildren: 2 };
+}
+
+function applyGuestLimits() {
+  const limits = getGuestLimits();
+  adultCountInput.max = String(limits.maxAdults);
+  adultCountInput.setAttribute("max", String(limits.maxAdults));
+  childCountInput.max = String(limits.maxChildren);
+  childCountInput.setAttribute("max", String(limits.maxChildren));
+  const adults = parseInt(adultCountInput.value, 10) || 0;
+  const children = parseInt(childCountInput.value, 10) || 0;
+  if (adults > limits.maxAdults) adultCountInput.value = String(limits.maxAdults);
+  if (children > limits.maxChildren) childCountInput.value = String(limits.maxChildren);
+  const hintEl = document.getElementById("guestLimitHint");
+  if (hintEl) {
+    hintEl.textContent = `Max ${limits.maxAdults} adult${limits.maxAdults !== 1 ? "s" : ""}${limits.maxChildren ? `, ${limits.maxChildren} child${limits.maxChildren !== 1 ? "ren" : ""}` : ""} for this selection.`;
+  }
+}
 
 // ============================================================================
 // AVAILABILITY CALENDAR FUNCTIONS
@@ -447,6 +482,8 @@ function updateBookingTypeUI() {
     floorSelect.classList.add("hidden");
     floorOptionLabel.classList.add("hidden");
   }
+
+  applyGuestLimits();
 
   // Fetch booked dates for new selection
   updateBookedDates();
@@ -678,9 +715,17 @@ function validateForm() {
     return false;
   }
 
+  const maxAdvance = new Date(today);
+  maxAdvance.setMonth(maxAdvance.getMonth() + 3);
+  if (checkIn > maxAdvance) {
+    showError("Bookings are accepted only up to 3 months in advance");
+    return false;
+  }
+
   // Guest count
-  const adults = parseInt(adultCountInput.value);
-  const children = parseInt(childCountInput.value);
+  const adults = parseInt(adultCountInput.value, 10);
+  const children = parseInt(childCountInput.value, 10);
+  const limits = getGuestLimits();
 
   if (isNaN(adults) || adults < 1) {
     showError("At least 1 adult is required");
@@ -689,6 +734,16 @@ function validateForm() {
 
   if (isNaN(children) || children < 0) {
     showError("Invalid number of children");
+    return false;
+  }
+
+  if (adults > limits.maxAdults) {
+    showError(`Maximum ${limits.maxAdults} adult${limits.maxAdults !== 1 ? "s" : ""} allowed for this selection.`);
+    return false;
+  }
+
+  if (children > limits.maxChildren) {
+    showError(`Maximum ${limits.maxChildren} child${limits.maxChildren !== 1 ? "ren" : ""} allowed for this selection.`);
     return false;
   }
 
@@ -811,6 +866,7 @@ bookingTypeChips.forEach((chip) => {
 // Room selection
 roomSelect.addEventListener("change", (e) => {
   currentRoomId = roomNameToId[e.target.value];
+  applyGuestLimits();
   updateBookedDates(); // Fetch booked dates for new room
   if (checkInInput.value && checkOutInput.value) {
     scheduleAvailabilityCheck(); // Re-check availability
@@ -821,6 +877,7 @@ roomSelect.addEventListener("change", (e) => {
 // Floor selection
 floorSelect.addEventListener("change", (e) => {
   currentFloorId = floorNameToId[e.target.value];
+  applyGuestLimits();
   updateBookedDates(); // Fetch booked dates for new floor
   if (checkInInput.value && checkOutInput.value) {
     scheduleAvailabilityCheck(); // Re-check availability
@@ -852,8 +909,16 @@ checkOutInput.addEventListener("change", () => {
 });
 
 // Guest count changes
-adultCountInput.addEventListener("change", updateBookingSummary);
-childCountInput.addEventListener("change", updateBookingSummary);
+adultCountInput.addEventListener("change", () => {
+  applyGuestLimits();
+  updateBookingSummary();
+});
+childCountInput.addEventListener("change", () => {
+  applyGuestLimits();
+  updateBookingSummary();
+});
+adultCountInput.addEventListener("input", applyGuestLimits);
+childCountInput.addEventListener("input", applyGuestLimits);
 
 // Guest details - show fieldset when any input is focused OR when user interacts with booking form
 const bookingFormInputs = document.querySelectorAll(
@@ -897,6 +962,91 @@ if (bookingSection) {
 
   observer.observe(bookingSection);
 }
+
+// Room cards: click to open full-window image viewer with slider arrows
+const roomPhotosViewer = document.getElementById("roomPhotosViewer");
+const roomPhotosBackdrop = document.getElementById("roomPhotosBackdrop");
+const roomViewerImage = document.getElementById("roomViewerImage");
+const roomViewerCaption = document.getElementById("roomViewerCaption");
+const roomViewerPrev = document.querySelector(".room-viewer-prev");
+const roomViewerNext = document.querySelector(".room-viewer-next");
+
+const roomCardTitles = {
+  robusta: "Robusta — Ground Floor",
+  arabica: "Arabica — Ground Floor",
+  excelsa: "Excelsa — Top Floor",
+  liberica: "Liberica — Top Floor",
+};
+
+const roomPhotosByKey = {
+  robusta: ["./assets/Robusta(1).jpeg", "./assets/Robusta(2).jpeg", "./assets/Robusta(3).jpeg"],
+  liberica: ["./assets/Liberica(1).jpeg", "./assets/Liberica(2).jpeg"],
+};
+
+let currentRoomPhotos = [];
+let currentRoomPhotoIndex = 0;
+let currentRoomTitle = "";
+
+function showRoomViewerImage(index) {
+  if (!currentRoomPhotos.length) return;
+  currentRoomPhotoIndex = (index + currentRoomPhotos.length) % currentRoomPhotos.length;
+  roomViewerImage.src = currentRoomPhotos[currentRoomPhotoIndex];
+  roomViewerImage.alt = currentRoomTitle;
+  roomViewerImage.classList.remove("hidden");
+  roomViewerPrev.classList.toggle("hidden", currentRoomPhotos.length <= 1);
+  roomViewerNext.classList.toggle("hidden", currentRoomPhotos.length <= 1);
+}
+
+function openRoomPhotosModal(roomKey) {
+  currentRoomTitle = roomCardTitles[roomKey] || roomKey;
+  currentRoomPhotos = roomPhotosByKey[roomKey] || [];
+  currentRoomPhotoIndex = 0;
+
+  if (currentRoomPhotos.length) {
+    roomViewerImage.classList.remove("hidden");
+    roomViewerCaption.classList.add("hidden");
+    showRoomViewerImage(0);
+  } else {
+    roomViewerImage.src = "";
+    roomViewerImage.alt = "";
+    roomViewerImage.classList.add("hidden");
+    roomViewerCaption.textContent = "Photos for this room will appear here once added.";
+    roomViewerCaption.classList.remove("hidden");
+    roomViewerPrev.classList.add("hidden");
+    roomViewerNext.classList.add("hidden");
+  }
+
+  roomPhotosViewer.classList.remove("hidden");
+  roomPhotosBackdrop.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeRoomPhotosModal() {
+  roomPhotosViewer.classList.add("hidden");
+  roomPhotosBackdrop.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function goToPrevImage() {
+  if (currentRoomPhotos.length > 1) showRoomViewerImage(currentRoomPhotoIndex - 1);
+}
+
+function goToNextImage() {
+  if (currentRoomPhotos.length > 1) showRoomViewerImage(currentRoomPhotoIndex + 1);
+}
+
+document.querySelectorAll(".room-card[data-room]").forEach((card) => {
+  card.addEventListener("click", () => {
+    openRoomPhotosModal(card.getAttribute("data-room"));
+  });
+});
+
+if (roomPhotosBackdrop) roomPhotosBackdrop.addEventListener("click", closeRoomPhotosModal);
+document.querySelectorAll('[data-close-modal="roomPhotos"]').forEach((btn) => {
+  btn.addEventListener("click", closeRoomPhotosModal);
+});
+if (roomViewerPrev) roomViewerPrev.addEventListener("click", (e) => { e.stopPropagation(); goToPrevImage(); });
+if (roomViewerNext) roomViewerNext.addEventListener("click", (e) => { e.stopPropagation(); goToNextImage(); });
 
 // Form submission
 bookingForm.addEventListener("submit", handleFormSubmit);
@@ -994,8 +1144,10 @@ function initCustomCursor() {
 function setMinDates() {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = formatDate(tomorrow);
-  checkInInput.min = minDate;
+  checkInInput.min = formatDate(tomorrow);
+  const maxAdvance = new Date();
+  maxAdvance.setMonth(maxAdvance.getMonth() + 3);
+  checkInInput.max = formatDate(maxAdvance);
 
   const dayAfterTomorrow = new Date(tomorrow);
   dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 1);
@@ -1023,6 +1175,7 @@ async function initApp() {
 
   // Initial UI state
   updateBookingTypeUI();
+  applyGuestLimits();
   updateBookingSummary();
 
   // Load Razorpay script

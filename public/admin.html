@@ -14,6 +14,9 @@
     <link rel="stylesheet" href="./admin-styles.css" />
   </head>
   <body class="admin-body">
+    <div class="cursor pointer-dot"></div>
+    <div class="cursor pointer-glow"></div>
+    <div class="cursor pointer-trail"></div>
     <!-- Header -->
     <header class="admin-header">
       <div class="admin-header-content">
@@ -22,6 +25,7 @@
           <p class="admin-subtitle">Manage bookings and pricing</p>
         </div>
         <div class="admin-header-actions">
+          <a href="index.html" class="admin-back-link">← Back to site</a>
           <span id="adminUsername" class="admin-username"></span>
           <button class="btn secondary" id="logoutBtn">Logout</button>
         </div>
@@ -36,7 +40,7 @@
 
         <!-- Stats Cards -->
         <div class="stats-grid">
-          <div class="stat-card">
+          <div class="stat-card primary">
             <h3>Total Bookings</h3>
             <div class="stat-value" id="totalBookings">0</div>
           </div>
@@ -431,4 +435,3 @@
     <script src="./admin-app.js" type="module"></script>
   </body>
 </html>
-ml>
