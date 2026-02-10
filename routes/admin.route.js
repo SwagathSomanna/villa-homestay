@@ -10,6 +10,7 @@ import {
   getAllPricingRules,
   updatePricingRule,
   deletePricingRule,
+  filterBookings,
 } from "../controllers/admin.controller.js";
 
 const router = Router();
@@ -20,9 +21,9 @@ router.get("/bookings", verifyJWT, getBooking); // Get all bookings
 router.patch("/bookings/:bookingId", verifyJWT, updateBooking); // Update booking
 router.delete("/bookings/:bookingId", verifyJWT, deleteBooking); // Cancel/delete booking
 router.post("/blocked-dates", verifyJWT, createBlockedDates); // Block dates
-router.post("/logout", verifyJWT, async (req, res) => {
+router.get("/filterBookings/", verifyJWT, filterBookings);
+router.post("/logout", verifyJWT, async (res) => {
   try {
-    console.log("logout mein aagaya");
     res.status(200).clearCookie("accessToken").json({ message: "okay" });
   } catch (error) {
     console.error(error);

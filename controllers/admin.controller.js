@@ -72,10 +72,6 @@ export const getBooking = async (req, res) => {
   }
 };
 
-// ============================================
-// BOOKING MANAGEMENT
-// ============================================
-
 export const updateBooking = async (req, res) => {
   try {
     const { bookingId } = req.params;
@@ -308,9 +304,7 @@ export const createBlockedDates = async (req, res) => {
   }
 };
 
-// ============================================
 // PRICING RULES MANAGEMENT
-// ============================================
 
 export const createPricingRule = async (req, res) => {
   try {
@@ -445,5 +439,47 @@ export const deletePricingRule = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export const filterBookings = async (req, res) => {
+  try {
+    const ALLOWED_STATUS = ["paid", "pending", "blocked", "cancelled"];
+    let { status, page = 1, limit = 10 } = req.query;
+
+    page = Number(page);
+    limit = Number(limit);
+
+    if (status && !ALLOWED_STATUS.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status filter",
+      });
+    }
+
+    const query = {};
+    if (status) query.status = status;
+
+    //pagination
+    const skip = (page - 1) * limit;
+
+    const bookings = await Booking.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    const total = await Booking.countDocuments(query);
+
+    return res.status(200).json({
+      data: bookings,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Something Went wrong" });
   }
 };
