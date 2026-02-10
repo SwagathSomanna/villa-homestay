@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Anudina Kuteera</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- <link rel="stylesheet" href="./styles.css" /> -->
+    <link rel="stylesheet" href="./admin-styles.css" />
+  </head>
+  <body class="admin-body">
+    <div class="cursor pointer-dot"></div>
+    <div class="cursor pointer-glow"></div>
+    <div class="cursor pointer-trail"></div>
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="admin-header-content">
+        <div>
+          <h1>🏡 Anudina Kuteera Admin</h1>
+          <p class="admin-subtitle">Manage bookings and pricing</p>
+        </div>
+        <div class="admin-header-actions">
+          <a href="index.html" class="admin-back-link">← Back to site</a>
+          <span id="adminUsername" class="admin-username"></span>
+          <button class="btn secondary" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="container">
+        <!-- Alert Messages -->
+        <div id="adminAlert" class="alert hidden"></div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card primary">
+            <h3>Total Bookings</h3>
+            <div class="stat-value" id="totalBookings">0</div>
+          </div>
+          <div class="stat-card success">
+            <h3>Paid Bookings</h3>
+            <div class="stat-value" id="paidBookings">0</div>
+          </div>
+          <div class="stat-card warning">
+            <h3>Pending Bookings</h3>
+            <div class="stat-value" id="pendingBookings">0</div>
+          </div>
+          <div class="stat-card danger">
+            <h3>Blocked Dates</h3>
+            <div class="stat-value" id="blockedDates">0</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="admin-tabs">
+          <button class="tab-btn active" data-tab="bookings">
+            📅 Bookings
+          </button>
+          <button class="tab-btn" data-tab="pricing">💰 Pricing Rules</button>
+          <button class="tab-btn" data-tab="block-dates">🚫 Block Dates</button>
+        </div>
+
+        <!-- Tab Content: Bookings -->
+        <div class="tab-content active" id="bookingsTab">
+          <div class="card">
+            <div class="card-header">
+              <h2>All Bookings</h2>
+              <div class="filters">
+                <select id="statusFilter" class="form-control-small">
+                  <option value="all">All Status</option>
+                  <option value="paid">Paid</option>
+                  <option value="pending">Pending</option>
+                  <option value="blocked">Blocked</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table id="bookingsTable">
+                <thead>
+                  <tr>
+                    <th>Guest Name</th>
+                    <th>Type</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Guests</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                  <tr>
+                    <td colspan="8" class="text-center">Loading...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content: Pricing Rules -->
+        <div class="tab-content" id="pricingTab">
+          <div class="card">
+            <div class="card-header flex-between">
+              <h2>Pricing Rules</h2>
+              <button class="btn primary" id="addPricingRuleBtn">
+                + Add Rule
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table id="pricingRulesTable">
+                <thead>
+                  <tr>
+                    <th>Rule Name</th>
+                    <th>Applies To</th>
+                    <th>Dates</th>
+                    <th>Modifier</th>
+                    <th>Days</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="pricingRulesTableBody">
+                  <tr>
+                    <td colspan="8" class="text-center">Loading...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content: Block Dates -->
+        <div class="tab-content" id="blockDatesTab">
+          <div class="card">
+            <div class="card-header">
+              <h2>Block Dates for Maintenance</h2>
+            </div>
+
+            <form id="blockDatesForm" class="admin-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Block Type</label>
+                  <select id="blockTargetType" class="form-control" required>
+                    <option value="villa">Entire Villa</option>
+                    <option value="floor">Floor</option>
+                    <option value="room">Room</option>
+                  </select>
+                </div>
+
+                <div class="form-group hidden" id="blockFloorGroup">
+                  <label>Select Floor</label>
+                  <select id="blockFloorId" class="form-control">
+                    <option value="">Choose floor...</option>
+                    <option value="F1">Ground Floor (R1, R2)</option>
+                    <option value="F2">Top Floor (R3, R4)</option>
+                  </select>
+                </div>
+
+                <div class="form-group hidden" id="blockRoomGroup">
+                  <label>Select Room</label>
+                  <select id="blockRoomId" class="form-control">
+                    <option value="">Choose room...</option>
+                    <option value="R1">Robusta (R1)</option>
+                    <option value="R2">Arabica (R2)</option>
+                    <option value="R3">Excelsa (R3)</option>
+                    <option value="R4">Liberica (R4)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Start Date</label>
+                  <input
+                    type="date"
+                    id="blockStartDate"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label>End Date</label>
+                  <input
+                    type="date"
+                    id="blockEndDate"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Reason (Optional)</label>
+                <input
+                  type="text"
+                  id="blockReason"
+                  class="form-control"
+                  placeholder="e.g., Maintenance, Repairs"
+                />
+              </div>
+
+              <button type="submit" class="btn primary">Block Dates</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal: Edit Booking -->
+    <div id="editBookingModal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Booking</h3>
+          <button class="close-modal" data-close="editBookingModal">
+            &times;
+          </button>
+        </div>
+        <form id="editBookingForm">
+          <input type="hidden" id="editBookingId" />
+
+          <div class="form-group">
+            <label>Status</label>
+            <select id="editStatus" class="form-control">
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="blocked">Blocked</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Check-in Date</label>
+              <input type="date" id="editCheckIn" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>Check-out Date</label>
+              <input type="date" id="editCheckOut" class="form-control" />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn secondary"
+              data-close="editBookingModal"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn primary">Update Booking</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal: Add/Edit Pricing Rule -->
+    <div id="pricingRuleModal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content large">
+        <div class="modal-header">
+          <h3 id="pricingRuleModalTitle">Add Pricing Rule</h3>
+          <button class="close-modal" data-close="pricingRuleModal">
+            &times;
+          </button>
+        </div>
+        <form id="pricingRuleForm">
+          <input type="hidden" id="pricingRuleId" />
+
+          <div class="form-group">
+            <label>Rule Name *</label>
+            <input
+              type="text"
+              id="ruleName"
+              class="form-control"
+              placeholder="e.g., Weekend Premium"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea
+              id="ruleDescription"
+              class="form-control"
+              rows="2"
+              placeholder="Optional description"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Start Date *</label>
+              <input
+                type="date"
+                id="ruleStartDate"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label>End Date *</label>
+              <input
+                type="date"
+                id="ruleEndDate"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Applies To *</label>
+              <select id="ruleAppliesTo" class="form-control" required>
+                <option value="all">All (Villa, Floors & Rooms)</option>
+                <option value="villa">Entire Villa Only</option>
+                <option value="floor">Specific Floor</option>
+                <option value="room">Specific Room</option>
+              </select>
+            </div>
+
+            <div class="form-group hidden" id="ruleFloorGroup">
+              <label>Target Floor</label>
+              <select id="ruleTargetFloor" class="form-control">
+                <option value="">Choose floor...</option>
+                <option value="F1">Ground Floor</option>
+                <option value="F2">Top Floor</option>
+              </select>
+            </div>
+
+            <div class="form-group hidden" id="ruleRoomGroup">
+              <label>Target Room</label>
+              <select id="ruleTargetRoom" class="form-control">
+                <option value="">Choose room...</option>
+                <option value="R1">Robusta (R1)</option>
+                <option value="R2">Arabica (R2)</option>
+                <option value="R3">Excelsa (R3)</option>
+                <option value="R4">Liberica (R4)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Modifier Type *</label>
+              <select id="ruleModifierType" class="form-control" required>
+                <option value="percentage">Percentage</option>
+                <option value="fixed">Fixed Amount</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label
+                >Modifier Value *
+                <small id="modifierHelp">(e.g., 30 for +30%)</small></label
+              >
+              <input
+                type="number"
+                id="ruleModifierValue"
+                class="form-control"
+                step="any"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Days of Week (Optional - leave empty for all days)</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" value="0" class="day-checkbox" /> Sunday
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" value="1" class="day-checkbox" /> Monday
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" value="2" class="day-checkbox" /> Tuesday
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" value="3" class="day-checkbox" />
+                Wednesday
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" value="4" class="day-checkbox" />
+                Thursday
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" value="5" class="day-checkbox" /> Friday
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" value="6" class="day-checkbox" />
+                Saturday
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Priority (higher = more important)</label>
+            <input
+              type="number"
+              id="rulePriority"
+              class="form-control"
+              value="0"
+              min="0"
+            />
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn secondary"
+              data-close="pricingRuleModal"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn primary">Save Rule</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./admin-app.js" type="module"></script>
+  </body>
+</html>
