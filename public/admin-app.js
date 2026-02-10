@@ -126,21 +126,29 @@ tabButtons.forEach((button) => {
 let allBookings = [];
 let currentStatusFilter = "all";
 
-async function loadBookings() {
+async function loadFilteredBookings(status, page = 1, limit = 100) {
   try {
-    const response = await fetch(`${API_BASE_URL}/admin/bookings`, {
-      credentials: "include",
-    });
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (status && status !== "all") params.set("status", status);
+    const response = await fetch(
+      `${API_BASE_URL}/admin/filterBookings?${params.toString()}`,
+      { credentials: "include" }
+    );
 
     if (!response.ok) throw new Error("Failed to fetch bookings");
 
-    allBookings = await response.json();
+    const json = await response.json();
+    allBookings = json.data || [];
     updateStats();
     renderBookings();
   } catch (error) {
     console.error("Error loading bookings:", error);
     showAlert("Failed to load bookings", "error");
   }
+}
+
+async function loadBookings() {
+  await loadFilteredBookings(currentStatusFilter);
 }
 
 function updateStats() {
@@ -158,13 +166,8 @@ function updateStats() {
 function renderBookings() {
   const tbody = document.getElementById("bookingsTableBody");
 
-  // Filter bookings based on status
-  let filteredBookings = allBookings;
-  if (currentStatusFilter !== "all") {
-    filteredBookings = allBookings.filter(
-      (b) => b.status === currentStatusFilter,
-    );
-  }
+  // API already returns filtered results; use allBookings as-is
+  const filteredBookings = allBookings;
 
   if (filteredBookings.length === 0) {
     tbody.innerHTML =
@@ -206,10 +209,10 @@ function renderBookings() {
     .join("");
 }
 
-// Status filter
+// Status filter: call filter API on change (paid, pending, blocked, cancelled, all)
 document.getElementById("statusFilter").addEventListener("change", (e) => {
   currentStatusFilter = e.target.value;
-  renderBookings();
+  loadFilteredBookings(currentStatusFilter);
 });
 
 // ============================================================================
@@ -652,17 +655,49 @@ document
   .addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const blockData = {
-      targetType: document.getElementById("blockTargetType").value,
-      checkIn: document.getElementById("blockStartDate").value,
-      checkOut: document.getElementById("blockEndDate").value,
-      reason:
-        document.getElementById("blockReason").value.trim() || "Admin blocked",
-    };
+    const targetType = document.getElementById("blockTargetType").value;
+    const checkIn = document.getElementById("blockStartDate").value;
+    const checkOut = document.getElementById("blockEndDate").value;
+    const reason =
+      document.getElementById("blockReason").value.trim() || "Admin blocked";
 
-    if (blockData.targetType === "floor") {
+    // Client-side validation (mirrors backend createBlockedDates logic)
+    if (!checkIn || !checkOut) {
+      showAlert("Please select both start and end dates", "error");
+      return;
+    }
+    if (new Date(checkIn) >= new Date(checkOut)) {
+      showAlert("Check-in must be before check-out", "error");
+      return;
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    if (checkIn <= today) {
+      showAlert("Please select a future date", "error");
+      return;
+    }
+    if (targetType === "floor") {
+      const floorId = document.getElementById("blockFloorId").value;
+      if (!floorId) {
+        showAlert("Please select a floor", "error");
+        return;
+      }
+    } else if (targetType === "room") {
+      const roomId = document.getElementById("blockRoomId").value;
+      if (!roomId) {
+        showAlert("Please select a room", "error");
+        return;
+      }
+    }
+
+    const blockData = {
+      targetType,
+      checkIn,
+      checkOut,
+      reason,
+    };
+    if (targetType === "floor") {
       blockData.floorId = document.getElementById("blockFloorId").value;
-    } else if (blockData.targetType === "room") {
+    } else if (targetType === "room") {
       blockData.roomId = document.getElementById("blockRoomId").value;
     }
 
@@ -679,7 +714,7 @@ document
       const data = await response.json();
 
       if (response.ok) {
-        showAlert("Dates blocked successfully");
+        showAlert(data.message || "Dates blocked successfully");
         document.getElementById("blockDatesForm").reset();
         loadBookings(); // Refresh to show new blocked booking
       } else {
