@@ -3,9 +3,13 @@
 const API_BASE_URL = "http://localhost:4000/api";
 
 const loginForm = document.getElementById("loginForm");
+const otpForm = document.getElementById("otpForm");
 const usernameInput = document.getElementById("username");
 const passwordInput = document.getElementById("password");
+const otpInput = document.getElementById("otpInput");
 const loginBtn = document.getElementById("loginBtn");
+const verifyOtpBtn = document.getElementById("verifyOtpBtn");
+const backToCredentialsBtn = document.getElementById("backToCredentials");
 const loginAlert = document.getElementById("loginAlert");
 
 function showAlert(message, type = "error") {
@@ -16,6 +20,19 @@ function showAlert(message, type = "error") {
   }, 5000);
 }
 
+function showCredentialsStep() {
+  loginForm.classList.remove("hidden");
+  otpForm.classList.add("hidden");
+}
+
+function showOtpStep() {
+  loginForm.classList.add("hidden");
+  otpForm.classList.remove("hidden");
+  otpInput.value = "";
+  otpInput.focus();
+}
+
+// Step 1: Username + password → send OTP to admin email
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -27,32 +44,22 @@ loginForm.addEventListener("submit", async (e) => {
     return;
   }
 
-  // Show loading
   loginBtn.disabled = true;
-  loginBtn.textContent = "Logging in...";
+  loginBtn.textContent = "Sending OTP...";
 
   try {
     const response = await fetch(`${API_BASE_URL}/admin/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include", // Important: include cookies
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ username, password }),
     });
 
     const data = await response.json();
 
     if (response.ok) {
-      // Store username in localStorage
-      localStorage.setItem("adminUsername", username);
-
-      showAlert("Login successful! Redirecting...", "success");
-
-      // Redirect to admin dashboard
-      setTimeout(() => {
-        window.location.href = "admin.html";
-      }, 1000);
+      showAlert("OTP sent to your email. Check your inbox.", "success");
+      showOtpStep();
     } else {
       showAlert(data.message || "Login failed");
     }
@@ -61,8 +68,56 @@ loginForm.addEventListener("submit", async (e) => {
     showAlert("Connection error. Please try again.");
   } finally {
     loginBtn.disabled = false;
-    loginBtn.textContent = "Login";
+    loginBtn.textContent = "Send OTP";
   }
+});
+
+// Step 2: OTP → verify & set session
+otpForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const username = usernameInput.value.trim();
+  const otp = otpInput.value.trim();
+
+  if (!username || !otp) {
+    showAlert("Please enter the OTP from your email");
+    return;
+  }
+
+  verifyOtpBtn.disabled = true;
+  verifyOtpBtn.textContent = "Verifying...";
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ username, otp }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem("adminUsername", username);
+      showAlert("Login successful! Redirecting...", "success");
+      setTimeout(() => {
+        window.location.href = "admin.html";
+      }, 1000);
+    } else {
+      showAlert(data.message || "Invalid OTP");
+    }
+  } catch (error) {
+    console.error("Verify OTP error:", error);
+    showAlert("Connection error. Please try again.");
+  } finally {
+    verifyOtpBtn.disabled = false;
+    verifyOtpBtn.textContent = "Verify & Login";
+  }
+});
+
+backToCredentialsBtn.addEventListener("click", () => {
+  showCredentialsStep();
+  showAlert("", "error");
 });
 
 // Check if already logged in

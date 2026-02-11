@@ -1052,8 +1052,36 @@ const roomCardTitles = {
 };
 
 const roomPhotosByKey = {
-  robusta: ["./assets/Robusta(1).jpeg", "./assets/Robusta(2).jpeg", "./assets/Robusta(3).jpeg"],
-  liberica: ["./assets/Liberica(1).jpeg", "./assets/Liberica(2).jpeg"],
+  robusta: [
+    "./assets/Robusta(1).jpeg",
+    "./assets/Robusta(2).jpeg",
+    "./assets/Robusta(3).jpeg",
+    "./assets/Robusta(4).jpeg",
+    "./assets/Robusta(5).jpeg",
+  ],
+  arabica: [
+    "./assets/Arabica(1).jpeg",
+    "./assets/Arabica(2).jpeg",
+    "./assets/Arabica(3).jpeg",
+    "./assets/Arabica(4).jpeg",
+    "./assets/Arabica(5).jpeg",
+  ],
+  excelsa: [
+    "./assets/Excelsa(1).jpeg",
+    "./assets/Excelsa(2).jpeg",
+    "./assets/Excelsa(3).jpeg",
+    "./assets/Excelsa(4).jpeg",
+    "./assets/Excelsa(5).jpeg",
+    "./assets/Excelsa(6).jpeg",
+  ],
+  liberica: [
+    "./assets/Liberica(1).jpeg",
+    "./assets/Liberica(2).jpeg",
+    "./assets/Liberica(3).jpeg",
+    "./assets/Liberica(4).jpeg",
+    "./assets/Liberica(5).jpeg",
+    "./assets/Liberica(6).jpeg",
+  ],
 };
 
 let currentRoomPhotos = [];
@@ -1256,6 +1284,80 @@ async function initApp() {
   script.src = "https://checkout.razorpay.com/v1/checkout.js";
   script.async = true;
   document.head.appendChild(script);
+
+  // Admin shots carousel (3.5s auto-scroll, loop, arrows)
+  initAdminShotsCarousel();
+}
+
+// Admin shots carousel: sliding motion, infinite scroll right, 3.5s auto-advance
+function initAdminShotsCarousel() {
+  const track = document.getElementById("adminShotsTrack");
+  const prevBtn = document.querySelector(".admin-shots-prev");
+  const nextBtn = document.querySelector(".admin-shots-next");
+  if (!track || !prevBtn || !nextBtn) return;
+
+  const slides = track.querySelectorAll(".admin-shots-slide");
+  const total = slides.length;
+  const realCount = total / 2; // first half is original, second half is clone for infinite scroll
+  if (total === 0 || realCount * 2 !== total) return;
+
+  let currentIndex = 0;
+  let autoInterval = null;
+  const AUTO_MS = 3500;
+
+  track.style.width = `${total * 100}%`;
+
+  function setTransition(enabled) {
+    track.style.transition = enabled ? "" : "none";
+  }
+
+  function updateTrack() {
+    track.style.transform = `translateX(-${currentIndex * (100 / total)}%)`;
+  }
+
+  function jumpTo(index) {
+    currentIndex = index;
+    setTransition(false);
+    updateTrack();
+    track.offsetHeight; // force reflow
+    setTransition(true);
+  }
+
+  function onTransitionEnd() {
+    if (currentIndex === realCount) jumpTo(0);
+  }
+
+  function next() {
+    if (currentIndex < total - 1) {
+      currentIndex++;
+      updateTrack();
+    } else {
+      jumpTo(0);
+    }
+    resetAuto();
+  }
+
+  function prev() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateTrack();
+    } else {
+      jumpTo(total - 1);
+    }
+    resetAuto();
+  }
+
+  track.addEventListener("transitionend", onTransitionEnd);
+
+  function resetAuto() {
+    if (autoInterval) clearInterval(autoInterval);
+    autoInterval = setInterval(next, AUTO_MS);
+  }
+
+  prevBtn.addEventListener("click", prev);
+  nextBtn.addEventListener("click", next);
+  updateTrack();
+  autoInterval = setInterval(next, AUTO_MS);
 }
 
 // Start the app when DOM is ready

@@ -762,11 +762,15 @@ export const sendAdminOTPEmail = async (email, otp) => {
   </html>
   `;
 
-  await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: "Anudinakuteera Support <support@mail.anudinakuteera.com>",
     to: [email],
     reply_to: "anudinakuteera23@gmail.com",
     subject: "Your Admin Login OTP",
     html,
   });
+
+  if (error) {
+    throw new Error(error.message || "Failed to send OTP email");
+  }
 };

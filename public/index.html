@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
@@ -346,7 +346,24 @@
           <p class="eyebrow">Experience Our Stay</p>
           <h2>Shots curated by the admin panel.</h2>
         </div>
-        <div class="gallery-grid" id="galleryGrid"></div>
+        <div class="admin-shots-carousel" id="adminShotsCarousel">
+          <button type="button" class="admin-shots-arrow admin-shots-prev" aria-label="Previous image">
+            <span aria-hidden="true">&#10094;</span>
+          </button>
+          <button type="button" class="admin-shots-arrow admin-shots-next" aria-label="Next image">
+            <span aria-hidden="true">&#10095;</span>
+          </button>
+          <div class="admin-shots-track" id="adminShotsTrack">
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(1).jpeg" alt="Anudina Kuteera — curated shot 1" loading="eager" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(2).jpeg" alt="Anudina Kuteera — curated shot 2" loading="eager" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(3).jpeg" alt="Anudina Kuteera — curated shot 3" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(4).jpeg" alt="Anudina Kuteera — curated shot 4" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(1).jpeg" alt="Anudina Kuteera — curated shot 1" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(2).jpeg" alt="Anudina Kuteera — curated shot 2" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(3).jpeg" alt="Anudina Kuteera — curated shot 3" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(4).jpeg" alt="Anudina Kuteera — curated shot 4" loading="lazy" /></div>
+          </div>
+        </div>
       </section>
 
       <section class="map">

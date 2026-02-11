@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
     <style>
@@ -26,10 +26,16 @@
         .reviews-nav a {
             color: var(--text);
             text-decoration: none;
-            font-weight: 500;
-            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-family: 'Lato', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-size: 0.85rem;
         }
-        .reviews-nav a:hover { color: var(--accent); }
+        .reviews-nav a:hover {
+            color: var(--accent);
+            transition: color 0.25s ease;
+        }
 
         .reviews-hero {
             min-height: 36vh;
@@ -70,8 +76,12 @@
             border-radius: 1.2rem;
             padding: 1.5rem 1.75rem;
             box-shadow: 0 20px 70px rgba(0, 0, 0, 0.08);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Lato', sans-serif;
             border: 1px solid var(--line);
+            transition: box-shadow 0.3s ease, transform 0.2s ease;
+        }
+        .review-card:hover {
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.12);
         }
         .review-card h3 {
             margin: 0;
@@ -80,7 +90,7 @@
             color: var(--accent);
         }
         .review-card .review-text {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Lato', sans-serif;
             font-weight: normal;
             line-height: 1.6;
             margin: 0.75rem 0;
@@ -88,7 +98,7 @@
             font-size: 0.95rem;
         }
         .review-card small {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Lato', sans-serif;
             font-weight: normal;
             color: var(--muted);
             font-size: 0.875rem;
@@ -111,6 +121,9 @@
 </head>
 
 <body class="reviews-page">
+    <div class="cursor pointer-dot"></div>
+    <div class="cursor pointer-glow"></div>
+    <div class="cursor pointer-trail"></div>
     <nav class="reviews-nav">
         <div class="logo">Anudina Kuteera</div>
         <a href="index.html">← Back to rooms</a>
