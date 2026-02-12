@@ -69,7 +69,7 @@
 }
 
 .admin-body {
-  font-family: "Lato", sans-serif;
+  font-family: "Montserrat", sans-serif;
   color: var(--text);
   background: var(--bg);
   min-height: 100vh;
@@ -78,7 +78,7 @@
 .admin-body h1,
 .admin-body h2,
 .admin-body h3 {
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
 }
 
 /* ============================================
@@ -182,7 +182,7 @@
   margin: 0 0 0.5rem 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-family: "Lato", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .stat-value {
@@ -758,7 +758,7 @@ textarea.form-control {
 }
 
 .login-header h1 {
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.75rem;
   color: var(--text);
   margin: 0 0 0.25rem;

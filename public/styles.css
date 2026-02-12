@@ -18,7 +18,7 @@
 
 body {
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   color: #2E2A26;
   background: var(--bg);
   cursor: auto;
@@ -107,13 +107,13 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   line-height: 1.15;
   font-weight: 600;
 }
 
 .eyebrow {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.25em;
   font-size: 0.75rem;
@@ -147,7 +147,7 @@ h6 {
 }
 
 .nav a {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   color: inherit;
   text-decoration: none;
   font-weight: 400;
@@ -192,7 +192,7 @@ h6 {
 }
 
 .lead {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 1.1rem;
   line-height: 1.7;
   color: rgba(255, 255, 255, 0.85);
@@ -200,7 +200,7 @@ h6 {
 }
 
 .btn {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -267,7 +267,7 @@ main {
 
 .section-heading p,
 .section-heading .eyebrow {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 /* Boutique Suites section – image left, text right, inside one curvy box */
@@ -345,7 +345,7 @@ main {
 }
 
 .boutique-suites-text .rooms-intro {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   color: var(--muted);
   margin: 0;
   font-size: 1rem;
@@ -430,7 +430,7 @@ main {
 }
 
 .room-body p {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   line-height: 1.7;
 }
 
@@ -599,6 +599,7 @@ main {
 .summary-amenities {
   flex: 1;
   min-height: 0;
+  margin-top: 1.75rem;
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
@@ -680,7 +681,7 @@ main {
 
 label,
 legend {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   display: block;
   font-weight: 500;
   margin-bottom: 0.4rem;
@@ -688,7 +689,7 @@ legend {
 
 input,
 select {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   width: 100%;
   padding: 0.9rem 1rem;
   border-radius: 999px;
@@ -699,7 +700,7 @@ select {
 }
 
 textarea {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 fieldset {
@@ -733,7 +734,7 @@ fieldset {
 }
 
 .chip {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   border: 1px solid var(--line);
   background: transparent;
   border-radius: 999px;
@@ -877,7 +878,7 @@ fieldset {
 }
 
 .activity-grid article p {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   line-height: 1.7;
 }
 
@@ -893,6 +894,20 @@ fieldset {
   border-radius: 1.25rem;
   padding: 1.6rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.07);
+}
+
+.terms ul {
+  margin: 0;
+  padding-left: 0;
+  list-style-position: inside;
+}
+
+.terms li {
+  margin-bottom: 0.5em;
+}
+
+.terms li:last-child {
+  margin-bottom: 0;
 }
 
 .qr-wrapper {
@@ -1132,7 +1147,7 @@ fieldset {
 
 .reviews-grid-index .review-card h3 {
   margin: 0 0 0.5rem 0;
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
 }
 
 .reviews-grid-index .review-card .rating {
@@ -1142,7 +1157,7 @@ fieldset {
 }
 
 .reviews-grid-index .review-card .review-text {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
   line-height: 1.7;
   margin: 0.75rem 0;
@@ -1150,7 +1165,7 @@ fieldset {
 }
 
 .reviews-grid-index .review-card small {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
   color: var(--muted);
 }
