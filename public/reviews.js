@@ -59,7 +59,6 @@ function renderReviews(reviews) {
       (review) => `
       <article class="review-card">
         <h3>${review.source} review</h3>
-        <p class="rating">${review.rating.toFixed(1)} ★</p>
         <p class="review-text">${review.text}</p>
         <small>— ${review.author}</small>
       </article>

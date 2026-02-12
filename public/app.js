@@ -1053,7 +1053,6 @@ const roomCardTitles = {
 
 const roomPhotosByKey = {
   robusta: [
-    "./assets/Robusta(1).jpeg",
     "./assets/Robusta(2).jpeg",
     "./assets/Robusta(3).jpeg",
     "./assets/Robusta(4).jpeg",
@@ -1064,18 +1063,16 @@ const roomPhotosByKey = {
     "./assets/Arabica(2).jpeg",
     "./assets/Arabica(3).jpeg",
     "./assets/Arabica(4).jpeg",
-    "./assets/Arabica(5).jpeg",
+    "./assets/Arabica(6).jpeg",
   ],
   excelsa: [
     "./assets/Excelsa(1).jpeg",
     "./assets/Excelsa(2).jpeg",
     "./assets/Excelsa(3).jpeg",
-    "./assets/Excelsa(4).jpeg",
     "./assets/Excelsa(5).jpeg",
     "./assets/Excelsa(6).jpeg",
   ],
   liberica: [
-    "./assets/Liberica(1).jpeg",
     "./assets/Liberica(2).jpeg",
     "./assets/Liberica(3).jpeg",
     "./assets/Liberica(4).jpeg",
