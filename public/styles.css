@@ -570,6 +570,8 @@ main {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
+  align-items: stretch;
+  min-height: 540px;
 }
 
 .form-panel,
@@ -578,6 +580,61 @@ main {
   border-radius: 1.5rem;
   padding: 2rem;
   box-shadow: 0 30px 60px rgba(31, 29, 26, 0.08);
+}
+
+.form-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-panel-guest-row {
+  margin-top: auto;
+}
+
+.summary-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-amenities {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-amenities-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--text);
+}
+
+.summary-amenities-list {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.summary-amenities-list li {
+  margin-bottom: 0.35rem;
+}
+
+.summary-payment-block {
+  margin-top: auto;
+}
+
+.summary-payment-block .notice {
+  margin-bottom: 1rem;
+}
+
+.summary-payment-block .btn {
+  margin-bottom: 0.5rem;
 }
 
 .guest-details {
@@ -910,7 +967,7 @@ fieldset {
 }
 
 .admin-shots-slide {
-  flex: 0 0 12.5%;
+  flex: 0 0 6.25%;
   min-width: 0;
   height: 100%;
 }

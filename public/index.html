@@ -217,33 +217,35 @@
               </label>
             </div>
 
-            <div class="grid two">
-              <label
-                >Adults
-                <input
-                  type="number"
-                  id="adultCount"
-                  min="1"
-                  value="2"
-                  required
-                />
-              </label>
-              <label
-                >Children
-                <input
-                  type="number"
-                  id="childCount"
-                  min="0"
-                  value="0"
-                  required
-                />
-              </label>
+            <div class="form-panel-guest-row">
+              <div class="grid two">
+                <label
+                  >Adults
+                  <input
+                    type="number"
+                    id="adultCount"
+                    min="1"
+                    value="2"
+                    required
+                  />
+                </label>
+                <label
+                  >Children
+                  <input
+                    type="number"
+                    id="childCount"
+                    min="0"
+                    value="0"
+                    required
+                  />
+                </label>
+              </div>
+              <p
+                class="guest-limit-hint"
+                id="guestLimitHint"
+                aria-live="polite"
+              ></p>
             </div>
-            <p
-              class="guest-limit-hint"
-              id="guestLimitHint"
-              aria-live="polite"
-            ></p>
           </div>
 
           <div class="summary-panel">
@@ -260,16 +262,28 @@
                 <strong id="depositPrice">₹0</strong>
               </div>
             </div>
-            <p class="notice">
-              A minimum 50% payment is required to block the selected dates.
-              Final amount will be confirmed before payment.
-            </p>
-            <button type="submit" class="btn primary block">
-              Reserve &amp; Pay
-            </button>
-            <small
-              >Razorpay Checkout will open after you accept the terms.</small
-            >
+            <div class="summary-amenities">
+              <h3 class="summary-amenities-heading">Guest Amenities &amp; Services</h3>
+              <ul class="summary-amenities-list">
+                <li>Homemade meals are available at an additional cost (please inform at least 4 hours in advance).</li>
+                <li>Pet-friendly property.</li>
+                <li>Complimentary Wi-Fi available.</li>
+                <li>Guests are requested to bring their own swimwear for pool use and sports gear for yard activities.</li>
+                <li>Bonfire and barbecue facilities are available at an additional charge.</li>
+              </ul>
+            </div>
+            <div class="summary-payment-block">
+              <p class="notice">
+                A minimum 50% payment is required to block the selected dates.
+                Final amount will be confirmed before payment.
+              </p>
+              <button type="submit" class="btn primary block">
+                Reserve &amp; Pay
+              </button>
+              <small
+                >Razorpay Checkout will open after you accept the terms.</small
+              >
+            </div>
           </div>
         </form>
       </section>
@@ -291,10 +305,18 @@
             <div class="admin-shots-slide"><img src="assets/Admin%20Shot(2).jpeg" alt="Anudina Kuteera — curated shot 2" loading="eager" /></div>
             <div class="admin-shots-slide"><img src="assets/Admin%20Shot(3).jpeg" alt="Anudina Kuteera — curated shot 3" loading="lazy" /></div>
             <div class="admin-shots-slide"><img src="assets/Admin%20Shot(4).jpeg" alt="Anudina Kuteera — curated shot 4" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(5).jpeg" alt="Anudina Kuteera — curated shot 5" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(6).jpeg" alt="Anudina Kuteera — curated shot 6" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(7).jpeg" alt="Anudina Kuteera — curated shot 7" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(8).jpeg" alt="Anudina Kuteera — curated shot 8" loading="lazy" /></div>
             <div class="admin-shots-slide"><img src="assets/Admin%20Shot(1).jpeg" alt="Anudina Kuteera — curated shot 1" loading="lazy" /></div>
             <div class="admin-shots-slide"><img src="assets/Admin%20Shot(2).jpeg" alt="Anudina Kuteera — curated shot 2" loading="lazy" /></div>
             <div class="admin-shots-slide"><img src="assets/Admin%20Shot(3).jpeg" alt="Anudina Kuteera — curated shot 3" loading="lazy" /></div>
             <div class="admin-shots-slide"><img src="assets/Admin%20Shot(4).jpeg" alt="Anudina Kuteera — curated shot 4" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(5).jpeg" alt="Anudina Kuteera — curated shot 5" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(6).jpeg" alt="Anudina Kuteera — curated shot 6" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(7).jpeg" alt="Anudina Kuteera — curated shot 7" loading="lazy" /></div>
+            <div class="admin-shots-slide"><img src="assets/Admin%20Shot(8).jpeg" alt="Anudina Kuteera — curated shot 8" loading="lazy" /></div>
           </div>
         </div>
       </section>
@@ -333,7 +355,7 @@
       <section class="map">
         <div>
           <h3>Find us effortlessly</h3>
-          <p>Anudina Kuteera Homestay, Coorg district, Karnataka</p>
+          <p>Anudina Kuteera Homestay, Kodagu district, Karnataka</p>
           <a
             class="btn ghost"
             href="https://www.google.com/maps/place/Anudina+Kuteera/@12.3391634,75.7938831,791m/data=!3m1!1e3!4m9!3m8!1s0x3ba5ab7fedaf0c9d:0xad54e5c861ca2357!5m2!4m1!1i2!8m2!3d12.3391634!4d75.796458!16s%2Fg%2F11vrfl9qkz?entry=ttu&amp;g_ep=EgoyMDI1MTExNi4wIKXMDSoASAFQAw%3D%3D"
@@ -374,37 +396,37 @@
       <section class="terms">
         <div>
           <h3>Terms &amp; Conditions</h3>
-          <p>
-            Bookings accepted up to 3 months in advance. 15 days before
-            check-in: cancellation entitles you to 100% refund. To cancel,
-            contact the admin; on confirmation you will receive an automated
-            cancellation message. Any damages to the property are payable by the
-            guest. The admin is not responsible for accidents on the property.
-            Extra person: ₹2,000 per person. ID card mandatory at check-in.
-          </p>
+          <ul>
+            <li>Full refund for cancellations made at least 15 days before check-in; no refund thereafter.</li>
+            <li>For cancellations, please contact the admin; a confirmation message will be sent upon processing.</li>
+            <li>An additional charge of ₹2,000 per person will apply for guests exceeding the number confirmed in the booking.</li>
+            <li>The guest shall be responsible for any damage caused to the property during their stay.</li>
+            <li>The management shall not be held liable for any accidents or injuries occurring within the property premises.</li>
+          </ul>
         </div>
         <div>
           <h3>Payments</h3>
-          <p>
-            50% payment on the website to confirm; remaining 50% on arrival.
-            Processed securely via Razorpay.
-          </p>
+          <ul>
+            <li>50% advance payment is required to confirm the booking; the remaining 50% is payable upon arrival.</li>
+          </ul>
         </div>
         <div>
           <h3>Amenities &amp; notes</h3>
-          <p>
-            Pet friendly. Free WiFi. Bring your own swim attire for pool access
-            and your own sports gear for the yard.
-          </p>
+          <ul>
+            <li>Homemade meals are available at an additional cost (please inform at least 4 hours in advance).</li>
+            <li>Pet-friendly property.</li>
+            <li>Complimentary Wi-Fi available.</li>
+            <li>Guests are requested to bring their own swimwear for pool use and sports gear for yard activities.</li>
+            <li>Bonfire and barbecue facilities are available at an additional charge.</li>
+          </ul>
         </div>
         <div>
           <h3>Need assistance?</h3>
-          <p>
-            Reach us on <a href="tel:+919972253584">+91 99722 53584</a> or email
-            <a href="mailto:anudinakuteera23@gmail.com"
-              >anudinakuteera23@gmail.com</a
-            >.
-          </p>
+          <ul>
+            <li>Reach us at <a href="tel:+919972253584">+91 99722 53584</a></li>
+            <li>WhatsApp: <a href="https://wa.me/919972253584">+91 99722 53584</a></li>
+            <li>Email: <a href="mailto:anudinakuteera23@gmail.com">anudinakuteera23@gmail.com</a></li>
+          </ul>
         </div>
       </section>
     </main>
