@@ -1,7 +1,7 @@
 import { Booking } from "../models/booking.model.js";
 import { Villa } from "../models/villa.model.js";
 import crypto from "crypto";
-import { VILLA_NAME, TARGET_TYPE } from "../constants.js";
+import { GUEST_LIMITS, TARGET_TYPE } from "../constants.js";
 
 //this is done so that all checks are done only on date basis
 function parseDateOnly(str) {
@@ -135,6 +135,110 @@ export async function verifyRoomStatus(roomInfo, res) {
   return 1;
 }
 
+//to validate the number of guests |
+//min 1 adult mandatory - validated by the caller
+//Robusta - 6 total : 4a max, children:2
+//Arabica - 4 total : 3a 1c (and everything else)
+// ground floor - 10 total : 7a, 3c
+// first floor - 8 total : 6a, 2c
+// entire villa - 18 total : 13a, 5c
+// const validateGuests = (res, bookingInfo) => {
+//   if (bookingInfo.targetType === "villa") {
+//     if (bookingInfo.children + bookingInfo.adults > 18) {
+//       res.status(400).json({ message: "Total guest size cant exceed 18" });
+//       return 0;
+//     }
+//     if (bookingInfo.adults > 13) {
+//       res.status(400).json({ message: "Total adults cant be more than 13" });
+//       return 0;
+//     }
+//   } else if (bookingInfo.targetType === "floor") {
+//     if (bookingInfo?.floorId === "F1") {
+//       if (bookingInfo.children + bookingInfo.adults > 10) {
+//         res
+//           .status(400)
+//           .json({ mesasge: "Total guests cant exceed 10 for ground floor" });
+//         return 0;
+//       }
+//       if (bookingInfo.adults > 7) {
+//         res
+//           .status(400)
+//           .json({ message: "Total adults cant exceed 7 for ground floor" });
+//         return 0;
+//       }
+//     } else if (bookingInfo?.floorId === "F2") {
+//       if (bookingInfo.children + bookingInfo.adults > 8) {
+//         res
+//           .staus(400)
+//           .json({ message: "Total guests cant exceed 8 for first floor" });
+//         return 0;
+//       }
+//       if (bookingInfo.adults > 6) {
+//         res
+//           .staus(400)
+//           .json({ message: "Total adults cant exceed 6 for first floor" });
+//         return 0;
+//       }
+//     }
+//   } else if (bookingInfo.targetType === "room") {
+//     const notR1 = ["R2", "R3", "R4"];
+//     if (bookingInfo.roomId === "R1") {
+//       if (bookingInfo.adults + bookingInfo.children > 6) {
+//         res.status(400).json({ message: "Total guests cant be more than 6" });
+//         return 0;
+//       }
+//       if (bookingInfo.adults > 4) {
+//         res.status(400).json({ message: "Total adults cant be more than 4" });
+//       }
+//     } else if (notR1.includes(bookingInfo.roomId)) {
+//       if (bookingInfo.adults + bookingInfo.children > 4) {
+//         res.status(400).json({ message: "Total guests cant exceed 4" });
+//         return 0;
+//       }
+//       if (bookingInfo.adults > 3) {
+//         res.status(400).json({ message: "Total adults cant exceed 3" });
+//       }
+//     }
+//   }
+// };
+
+//replacing my fuckall code with gpt code (sed lyf) | added guest limits now
+//ps the logic is still right
+const validateGuests = (res, bookingInfo) => {
+  console.log(bookingInfo);
+  const { targetType, adults, children } = bookingInfo;
+  const totalGuests = adults + children;
+
+  let limits;
+
+  if (targetType === "villa") {
+    limits = GUEST_LIMITS.villa;
+  } else if (targetType === "floor") {
+    limits = GUEST_LIMITS.floor[bookingInfo.floorId];
+  } else if (targetType === "room") {
+    limits = GUEST_LIMITS.room[bookingInfo.roomId];
+  }
+
+  if (!limits) {
+    res.status(400).json({ message: "Invalid booking target" });
+    return false;
+  }
+
+  if (totalGuests > limits.total) {
+    res
+      .status(400)
+      .json({ message: `Total guests can't exceed ${limits.total}` });
+    return false;
+  }
+
+  if (adults > limits.adults) {
+    res.status(400).json({ message: `Adults can't exceed ${limits.adults}` });
+    return false;
+  }
+
+  return true;
+};
+
 //razorpay imports
 import Razorpay from "razorpay";
 import { calculateDynamicPrice } from "../utils/pricingHelper.util.js";
@@ -224,11 +328,17 @@ export const bookVilla = async (req, res) => {
       floorId: req.body?.floorId,
       roomId: req.body?.roomId,
       targetType: req.body?.targetType,
+      children: Number(req.body?.guest?.children),
+      adults: Number(req.body?.guest?.adults),
     };
 
     const isBookingAvailable = await verifyRoomStatus(roomInfo, res);
     if (!isBookingAvailable) {
       return; // Response already sent
+    }
+    //check the number of guests
+    if (!validateGuests(res, roomInfo)) {
+      return;
     }
 
     // Calculate total price (in RUPEES)
@@ -330,7 +440,9 @@ export const getPriceQuote = async (req, res) => {
     const today = parseDateOnly(new Date().toISOString().slice(0, 10));
 
     if (checkIn >= checkOut) {
-      return res.status(400).json({ message: "Check-in must be before check-out" });
+      return res
+        .status(400)
+        .json({ message: "Check-in must be before check-out" });
     }
     if (checkIn <= today) {
       return res.status(400).json({ message: "Please select a future date" });
@@ -351,15 +463,18 @@ export const getPriceQuote = async (req, res) => {
       basePrice = villa.price;
     } else if (targetType === "floor") {
       const floor = villa.floors.find((f) => f.floorId === req.body.floorId);
-      if (!floor) return res.status(400).json({ message: "Invalid floor selected" });
+      if (!floor)
+        return res.status(400).json({ message: "Invalid floor selected" });
       basePrice = floor.price;
     } else if (targetType === "room") {
       const floor = villa.floors.find((f) =>
         f.rooms.some((r) => r.roomId === req.body.roomId),
       );
-      if (!floor) return res.status(400).json({ message: "Invalid room selected" });
+      if (!floor)
+        return res.status(400).json({ message: "Invalid room selected" });
       const room = floor.rooms.find((r) => r.roomId === req.body.roomId);
-      if (!room) return res.status(400).json({ message: "Invalid room selected" });
+      if (!room)
+        return res.status(400).json({ message: "Invalid room selected" });
       basePrice = room.price;
     } else {
       return res.status(400).json({ message: "Invalid target type" });
@@ -416,7 +531,7 @@ export const getBookedDates = async (req, res) => {
 
     // Build query based on target type
     let query = {
-      status: "confirmed", // ← CRITICAL: Only show confirmed bookings
+      status: { $in: ["paid", "blocked"] },
       $or: [
         // Bookings that overlap with the requested range
         {

@@ -1,5 +1,4 @@
 //this file is run once manually to add the villa entries to the database.
-import mongoose from "mongoose";
 import { Villa } from "../models/villa.model.js";
 import { VILLA_NAME } from "../constants.js";
 import { exit } from "process";
