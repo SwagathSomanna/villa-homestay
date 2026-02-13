@@ -5,10 +5,10 @@ import { GUEST_LIMITS, TARGET_TYPE } from "../constants.js";
 
 //this is done so that all checks are done only on date basis
 function parseDateOnly(str) {
+  // Parse as YYYY-MM-DD and create at UTC midnight
   const [y, m, d] = str.split("-").map(Number);
-  return new Date(y, m - 1, d); // local midnight
+  return new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0)); // UTC midnight
 }
-
 //verify if the room is already booked
 // 1. The current target checkin date must be more than any existing checkout date.
 // 2. The current target checkout date must be less than any other existing checkIn dates
@@ -205,7 +205,6 @@ export async function verifyRoomStatus(roomInfo, res) {
 //replacing my fuckall code with gpt code (sed lyf) | added guest limits now
 //ps the logic is still right
 const validateGuests = (res, bookingInfo) => {
-  console.log(bookingInfo);
   const { targetType, adults, children } = bookingInfo;
   const totalGuests = adults + children;
 
@@ -343,7 +342,7 @@ export const bookVilla = async (req, res) => {
 
     // Calculate total price (in RUPEES)
     const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-    const totalPrice = pricingInfo.finalPrice * nights; // RUPEES (with pricing rules applied)
+    const totalPrice = pricingInfo.totalPrice; // RUPEES (with pricing rules applied)
     const amountToPay = Math.floor(totalPrice * 0.5); // 50% upfront (RUPEES)
 
     // Create Razorpay order (convert to PAISE)
@@ -382,6 +381,7 @@ export const bookVilla = async (req, res) => {
         paidAmount: 0, // Will update after payment verification
         remainingAmount: totalPrice, // RUPEES remaining
         appliedRules: pricingInfo.appliedRules,
+        nightBreakdown: pricingInfo.nightPrices,
       },
     });
 
