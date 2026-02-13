@@ -175,6 +175,16 @@ h6 {
 .logo {
   font-size: 1.4rem;
   letter-spacing: 0.2em;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.logo-img {
+  height: 2rem;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .hero-content {
@@ -268,6 +278,14 @@ main {
 .section-heading p,
 .section-heading .eyebrow {
   font-family: "Montserrat", sans-serif;
+}
+
+.section-heading .eyebrow {
+  font-size: 0.85rem;
+}
+
+.section-heading h2 {
+  font-size: clamp(1.65rem, 4.25vw, 2.35rem);
 }
 
 /* Boutique Suites section – image left, text right, inside one curvy box */

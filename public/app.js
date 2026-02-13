@@ -254,18 +254,19 @@ const floorNameToId = {
   top: "F2",
 };
 
-// Guest limits per room/floor (max adults, max children)
+// Guest limits per room/floor (max adults, max children) — matches backend validation
+// Min 1 adult mandatory (caretaker when children present)
 const ROOM_GUEST_LIMITS = {
-  R1: { maxAdults: 4, maxChildren: 2 },   // Robusta
-  R2: { maxAdults: 3, maxChildren: 2 },   // Arabica
-  R3: { maxAdults: 3, maxChildren: 1 },   // Excelsa (TF - 1 child per room)
-  R4: { maxAdults: 3, maxChildren: 1 },   // Liberica (TF - 1 child per room)
+  R1: { maxAdults: 4, maxChildren: 2, total: 6 },   // Robusta — 6 total: 4a, 2c
+  R2: { maxAdults: 3, maxChildren: 1, total: 4 },   // Arabica — 4 total: 3a, 1c
+  R3: { maxAdults: 3, maxChildren: 1, total: 4 },   // Excelsa — Top floor
+  R4: { maxAdults: 3, maxChildren: 1, total: 4 },   // Liberica — Top floor
 };
 const FLOOR_GUEST_LIMITS = {
-  F1: { maxAdults: 7, maxChildren: 4 },   // Ground Floor (Robusta + Arabica)
-  F2: { maxAdults: 7, maxChildren: 2 },    // Top Floor (1 child per room × 2 rooms)
+  F1: { maxAdults: 7, maxChildren: 3, total: 10 },  // Ground floor — 10 total: 7a, 3c
+  F2: { maxAdults: 6, maxChildren: 2, total: 8 },   // First/Top floor — 8 total: 6a, 2c
 };
-const VILLA_GUEST_LIMITS = { maxAdults: 7, maxChildren: 4 };
+const VILLA_GUEST_LIMITS = { maxAdults: 13, maxChildren: 5, total: 18 };
 
 function getGuestLimits() {
   if (currentBookingType === "villa") return VILLA_GUEST_LIMITS;
@@ -275,17 +276,36 @@ function getGuestLimits() {
 
 function applyGuestLimits() {
   const limits = getGuestLimits();
+  const total = limits.total || limits.maxAdults + limits.maxChildren;
   adultCountInput.max = String(limits.maxAdults);
   adultCountInput.setAttribute("max", String(limits.maxAdults));
   childCountInput.max = String(limits.maxChildren);
   childCountInput.setAttribute("max", String(limits.maxChildren));
-  const adults = parseInt(adultCountInput.value, 10) || 0;
-  const children = parseInt(childCountInput.value, 10) || 0;
-  if (adults > limits.maxAdults) adultCountInput.value = String(limits.maxAdults);
-  if (children > limits.maxChildren) childCountInput.value = String(limits.maxChildren);
+  let adults = parseInt(adultCountInput.value, 10) || 0;
+  let children = parseInt(childCountInput.value, 10) || 0;
+  if (adults > limits.maxAdults) {
+    adults = limits.maxAdults;
+    adultCountInput.value = String(adults);
+  }
+  if (children > limits.maxChildren) {
+    children = limits.maxChildren;
+    childCountInput.value = String(children);
+  }
+  if (adults + children > total) {
+    if (children > 0) {
+      children = Math.min(children, total - adults, limits.maxChildren);
+      childCountInput.value = String(Math.max(0, children));
+    } else {
+      adults = Math.min(adults, total, limits.maxAdults);
+      adultCountInput.value = String(adults);
+    }
+  }
+  if (adults < 1) {
+    adultCountInput.value = "1";
+  }
   const hintEl = document.getElementById("guestLimitHint");
   if (hintEl) {
-    hintEl.textContent = `Max ${limits.maxAdults} adult${limits.maxAdults !== 1 ? "s" : ""}${limits.maxChildren ? `, ${limits.maxChildren} child${limits.maxChildren !== 1 ? "ren" : ""}` : ""} for this selection.`;
+    hintEl.textContent = `${total} total · max ${limits.maxAdults} adult${limits.maxAdults !== 1 ? "s" : ""}${limits.maxChildren ? `, ${limits.maxChildren} child${limits.maxChildren !== 1 ? "ren" : ""}` : ""}. Min 1 adult required.`;
   }
 }
 
@@ -817,6 +837,12 @@ function validateForm() {
 
   if (children > limits.maxChildren) {
     showError(`Maximum ${limits.maxChildren} child${limits.maxChildren !== 1 ? "ren" : ""} allowed for this selection.`);
+    return false;
+  }
+
+  const total = limits.total || limits.maxAdults + limits.maxChildren;
+  if (adults + children > total) {
+    showError(`Maximum ${total} guests total for this selection (${adults} adult${adults !== 1 ? "s" : ""} + ${children} child${children !== 1 ? "ren" : ""}).`);
     return false;
   }
 
