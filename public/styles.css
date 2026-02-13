@@ -18,7 +18,10 @@
 
 html {
   overflow-x: hidden;
+  overflow-y: auto;
   -webkit-text-size-adjust: 100%;
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
 }
 
 body {
@@ -30,7 +33,13 @@ body {
   font-weight: 400;
   line-height: 1.7;
   overflow-x: hidden;
+  overflow-y: auto;
   max-width: 100vw;
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Custom cursor - only visible on desktop with pointer device (above modals & room viewer) */
@@ -138,12 +147,14 @@ h6 {
   padding-right: max(clamp(1rem, 4vw, 5rem), env(safe-area-inset-right));
   color: #fff;
   overflow: hidden;
+  contain: paint;
 }
 
 .hero-video-wrap {
   position: absolute;
   inset: 0;
   z-index: 0;
+  contain: paint;
 }
 
 .hero-video {
@@ -1455,7 +1466,7 @@ footer {
 }
 
 .footer-logo {
-  height: 5rem;
+  height: 11rem;
   width: auto;
   object-fit: contain;
   display: block;
@@ -1566,6 +1577,21 @@ footer a {
   .hero {
     padding: 2rem clamp(1rem, 4vw, 2rem) 3rem;
     padding-top: max(2rem, env(safe-area-inset-top));
+  }
+
+  /* Hero video: portrait fill; show lower part (outro/logo) and avoid extra layers to reduce scroll jank */
+  .hero-video {
+    object-fit: cover;
+    object-position: center 65%;
+  }
+  
+  /* Better text rendering on mobile */
+  .hero h1 {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .lead {
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   }
 
   .nav {
@@ -1701,6 +1727,17 @@ footer a {
 
   .terms > div {
     padding: 1.25rem;
+  }
+}
+
+/* High-resolution displays (retina screens) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    font-size: 16px;
+  }
+  
+  .hero h1 {
+    font-weight: 600;
   }
 }
 
