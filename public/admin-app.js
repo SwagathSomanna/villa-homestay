@@ -128,11 +128,14 @@ let currentStatusFilter = "all";
 
 async function loadFilteredBookings(status, page = 1, limit = 100) {
   try {
-    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
     if (status && status !== "all") params.set("status", status);
     const response = await fetch(
       `${API_BASE_URL}/admin/filterBookings?${params.toString()}`,
-      { credentials: "include" }
+      { credentials: "include" },
     );
 
     if (!response.ok) throw new Error("Failed to fetch bookings");
@@ -190,6 +193,7 @@ function renderBookings() {
         <td>
           <strong>${guestName}</strong>
           ${booking.guest?.email ? `<br><small>${booking.guest.email}</small>` : ""}
+          ${booking.guest?.phone ? `<br><small>${booking.guest.phone}</small>` : ""}
         </td>
         <td>${getBookingTypeText(booking)}</td>
         <td>${formatDate(booking.checkIn)}</td>
@@ -767,7 +771,9 @@ document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
 // INITIALIZATION
 // ============================================================================
 function initCustomCursor() {
-  const hasFinPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const hasFinPointer = window.matchMedia(
+    "(hover: hover) and (pointer: fine)",
+  ).matches;
   if (!hasFinPointer) return;
 
   const cursorDot = document.querySelector(".pointer-dot");
@@ -776,7 +782,10 @@ function initCustomCursor() {
   if (!cursorDot || !cursorGlow || !cursorTrail) return;
 
   document.body.classList.add("custom-cursor-enabled");
-  let mouseX = 0, mouseY = 0, trailX = 0, trailY = 0;
+  let mouseX = 0,
+    mouseY = 0,
+    trailX = 0,
+    trailY = 0;
 
   document.addEventListener("mousemove", (e) => {
     mouseX = e.clientX;
@@ -797,12 +806,20 @@ function initCustomCursor() {
   animateTrail();
 
   const interactive = "a, button, input, select, .tab-btn, .close-modal";
-  document.addEventListener("mouseenter", (e) => {
-    if (e.target.matches(interactive)) cursorGlow.classList.add("active");
-  }, true);
-  document.addEventListener("mouseleave", (e) => {
-    if (e.target.matches(interactive)) cursorGlow.classList.remove("active");
-  }, true);
+  document.addEventListener(
+    "mouseenter",
+    (e) => {
+      if (e.target.matches(interactive)) cursorGlow.classList.add("active");
+    },
+    true,
+  );
+  document.addEventListener(
+    "mouseleave",
+    (e) => {
+      if (e.target.matches(interactive)) cursorGlow.classList.remove("active");
+    },
+    true,
+  );
 }
 
 async function initAdmin() {
