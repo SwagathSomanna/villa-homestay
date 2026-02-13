@@ -1407,6 +1407,14 @@ footer {
   color: var(--muted);
 }
 
+.footer-logo {
+  height: 2.5rem;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 1rem;
+}
+
 footer a {
   color: var(--accent);
 }
