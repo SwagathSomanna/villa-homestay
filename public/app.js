@@ -1,7 +1,7 @@
 // ============================================================================
 // CONFIG & CONSTANTS
 // ============================================================================
-const API_BASE_URL = "http://localhost:4000/api";
+const API_BASE_URL = "https://anudinakuteera.com/api";
 const RAZORPAY_KEY_ID = "rzp_live_S8OxnCgzgl8m8L";
 
 // Villa pricing data (fetched from backend)
@@ -257,20 +257,21 @@ const floorNameToId = {
 // Guest limits per room/floor (max adults, max children) — matches backend validation
 // Min 1 adult mandatory (caretaker when children present)
 const ROOM_GUEST_LIMITS = {
-  R1: { maxAdults: 4, maxChildren: 2, total: 6 },   // Robusta — 6 total: 4a, 2c
-  R2: { maxAdults: 3, maxChildren: 1, total: 4 },   // Arabica — 4 total: 3a, 1c
-  R3: { maxAdults: 3, maxChildren: 1, total: 4 },   // Excelsa — Top floor
-  R4: { maxAdults: 3, maxChildren: 1, total: 4 },   // Liberica — Top floor
+  R1: { maxAdults: 4, maxChildren: 2, total: 6 }, // Robusta — 6 total: 4a, 2c
+  R2: { maxAdults: 3, maxChildren: 1, total: 4 }, // Arabica — 4 total: 3a, 1c
+  R3: { maxAdults: 3, maxChildren: 1, total: 4 }, // Excelsa — Top floor
+  R4: { maxAdults: 3, maxChildren: 1, total: 4 }, // Liberica — Top floor
 };
 const FLOOR_GUEST_LIMITS = {
-  F1: { maxAdults: 7, maxChildren: 3, total: 10 },  // Ground floor — 10 total: 7a, 3c
-  F2: { maxAdults: 6, maxChildren: 2, total: 8 },   // First/Top floor — 8 total: 6a, 2c
+  F1: { maxAdults: 7, maxChildren: 3, total: 10 }, // Ground floor — 10 total: 7a, 3c
+  F2: { maxAdults: 6, maxChildren: 2, total: 8 }, // First/Top floor — 8 total: 6a, 2c
 };
 const VILLA_GUEST_LIMITS = { maxAdults: 13, maxChildren: 5, total: 18 };
 
 function getGuestLimits() {
   if (currentBookingType === "villa") return VILLA_GUEST_LIMITS;
-  if (currentBookingType === "floor") return FLOOR_GUEST_LIMITS[currentFloorId] || VILLA_GUEST_LIMITS;
+  if (currentBookingType === "floor")
+    return FLOOR_GUEST_LIMITS[currentFloorId] || VILLA_GUEST_LIMITS;
   return ROOM_GUEST_LIMITS[currentRoomId] || { maxAdults: 4, maxChildren: 2 };
 }
 
@@ -473,7 +474,9 @@ async function updateBookingSummary() {
         nights,
       );
   const pricePerNight = quote ? quote.finalPrice : totalPrice / nights;
-  const depositAmount = quote ? quote.depositAmount : Math.ceil(totalPrice * 0.5);
+  const depositAmount = quote
+    ? quote.depositAmount
+    : Math.ceil(totalPrice * 0.5);
 
   // Build summary
   let summaryHTML = "";
@@ -504,7 +507,11 @@ async function updateBookingSummary() {
   summaryHTML += `<li><strong>Rate:</strong> ₹${pricePerNight.toLocaleString("en-IN")} × ${nights} night${nights !== 1 ? "s" : ""}</li>`;
   if (quote && quote.appliedRules && quote.appliedRules.length > 0) {
     const rulesText = quote.appliedRules
-      .map((r) => (r.type === "fixed" ? `${r.name} (+₹${r.modifier?.toLocaleString("en-IN")})` : `${r.name} (+${r.modifier}%)`))
+      .map((r) =>
+        r.type === "fixed"
+          ? `${r.name} (+₹${r.modifier?.toLocaleString("en-IN")})`
+          : `${r.name} (+${r.modifier}%)`,
+      )
       .join(", ");
     summaryHTML += `<li><strong>Includes:</strong> ${rulesText}</li>`;
   }
@@ -728,9 +735,17 @@ function showTermsModal() {
     if (lastPriceQuote) {
       totalEl.textContent = `₹${lastPriceQuote.totalPrice.toLocaleString("en-IN")}`;
       depositEl.textContent = `₹${lastPriceQuote.depositAmount.toLocaleString("en-IN")}`;
-      if (rulesEl && lastPriceQuote.appliedRules && lastPriceQuote.appliedRules.length > 0) {
+      if (
+        rulesEl &&
+        lastPriceQuote.appliedRules &&
+        lastPriceQuote.appliedRules.length > 0
+      ) {
         const rulesText = lastPriceQuote.appliedRules
-          .map((r) => (r.type === "fixed" ? `${r.name} (+₹${(r.modifier ?? 0).toLocaleString("en-IN")})` : `${r.name} (+${r.modifier}%)`))
+          .map((r) =>
+            r.type === "fixed"
+              ? `${r.name} (+₹${(r.modifier ?? 0).toLocaleString("en-IN")})`
+              : `${r.name} (+${r.modifier}%)`,
+          )
           .join(", ");
         rulesEl.textContent = `Includes: ${rulesText}`;
         rulesEl.classList.remove("hidden");
@@ -831,18 +846,24 @@ function validateForm() {
   }
 
   if (adults > limits.maxAdults) {
-    showError(`Maximum ${limits.maxAdults} adult${limits.maxAdults !== 1 ? "s" : ""} allowed for this selection.`);
+    showError(
+      `Maximum ${limits.maxAdults} adult${limits.maxAdults !== 1 ? "s" : ""} allowed for this selection.`,
+    );
     return false;
   }
 
   if (children > limits.maxChildren) {
-    showError(`Maximum ${limits.maxChildren} child${limits.maxChildren !== 1 ? "ren" : ""} allowed for this selection.`);
+    showError(
+      `Maximum ${limits.maxChildren} child${limits.maxChildren !== 1 ? "ren" : ""} allowed for this selection.`,
+    );
     return false;
   }
 
   const total = limits.total || limits.maxAdults + limits.maxChildren;
   if (adults + children > total) {
-    showError(`Maximum ${total} guests total for this selection (${adults} adult${adults !== 1 ? "s" : ""} + ${children} child${children !== 1 ? "ren" : ""}).`);
+    showError(
+      `Maximum ${total} guests total for this selection (${adults} adult${adults !== 1 ? "s" : ""} + ${children} child${children !== 1 ? "ren" : ""}).`,
+    );
     return false;
   }
 
@@ -1113,7 +1134,8 @@ let currentRoomTitle = "";
 
 function showRoomViewerImage(index) {
   if (!currentRoomPhotos.length) return;
-  currentRoomPhotoIndex = (index + currentRoomPhotos.length) % currentRoomPhotos.length;
+  currentRoomPhotoIndex =
+    (index + currentRoomPhotos.length) % currentRoomPhotos.length;
   roomViewerImage.src = currentRoomPhotos[currentRoomPhotoIndex];
   roomViewerImage.alt = currentRoomTitle;
   roomViewerImage.classList.remove("hidden");
@@ -1134,7 +1156,8 @@ function openRoomPhotosModal(roomKey) {
     roomViewerImage.src = "";
     roomViewerImage.alt = "";
     roomViewerImage.classList.add("hidden");
-    roomViewerCaption.textContent = "Photos for this room will appear here once added.";
+    roomViewerCaption.textContent =
+      "Photos for this room will appear here once added.";
     roomViewerCaption.classList.remove("hidden");
     roomViewerPrev.classList.add("hidden");
     roomViewerNext.classList.add("hidden");
@@ -1152,11 +1175,13 @@ function closeRoomPhotosModal() {
 }
 
 function goToPrevImage() {
-  if (currentRoomPhotos.length > 1) showRoomViewerImage(currentRoomPhotoIndex - 1);
+  if (currentRoomPhotos.length > 1)
+    showRoomViewerImage(currentRoomPhotoIndex - 1);
 }
 
 function goToNextImage() {
-  if (currentRoomPhotos.length > 1) showRoomViewerImage(currentRoomPhotoIndex + 1);
+  if (currentRoomPhotos.length > 1)
+    showRoomViewerImage(currentRoomPhotoIndex + 1);
 }
 
 document.querySelectorAll(".room-card[data-room]").forEach((card) => {
@@ -1165,12 +1190,21 @@ document.querySelectorAll(".room-card[data-room]").forEach((card) => {
   });
 });
 
-if (roomPhotosBackdrop) roomPhotosBackdrop.addEventListener("click", closeRoomPhotosModal);
+if (roomPhotosBackdrop)
+  roomPhotosBackdrop.addEventListener("click", closeRoomPhotosModal);
 document.querySelectorAll('[data-close-modal="roomPhotos"]').forEach((btn) => {
   btn.addEventListener("click", closeRoomPhotosModal);
 });
-if (roomViewerPrev) roomViewerPrev.addEventListener("click", (e) => { e.stopPropagation(); goToPrevImage(); });
-if (roomViewerNext) roomViewerNext.addEventListener("click", (e) => { e.stopPropagation(); goToNextImage(); });
+if (roomViewerPrev)
+  roomViewerPrev.addEventListener("click", (e) => {
+    e.stopPropagation();
+    goToPrevImage();
+  });
+if (roomViewerNext)
+  roomViewerNext.addEventListener("click", (e) => {
+    e.stopPropagation();
+    goToNextImage();
+  });
 
 // Form submission
 bookingForm.addEventListener("submit", handleFormSubmit);

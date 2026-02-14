@@ -6,7 +6,6 @@ const pricingRuleSchema = new Schema(
     name: {
       type: String,
       required: true,
-      // e.g., "Weekend Premium", "Christmas Holiday", "Summer Season"
     },
 
     description: String,
@@ -22,7 +21,6 @@ const pricingRuleSchema = new Schema(
       required: true,
     },
 
-    // What does this rule apply to?
     appliesTo: {
       type: String,
       enum: ["villa", "floor", "room", "all"],
@@ -76,5 +74,8 @@ const pricingRuleSchema = new Schema(
   },
   { timestamps: true },
 );
+
+//auto delete after 15 days
+pricingRuleSchema.index({ endDate: 1 }, { expireAfterSeconds: 1296000 }); // 15*24*60*60
 
 export const PricingRule = mongoose.model("PricingRule", pricingRuleSchema);
