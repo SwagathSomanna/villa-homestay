@@ -2,7 +2,7 @@
 // CONFIG & CONSTANTS
 // ============================================================================
 const API_BASE_URL = "https://anudinakuteera.com/api";
-const RAZORPAY_KEY_ID = "rzp_live_S8OxnCgzgl8m8L";
+const RAZORPAY_KEY_ID = "rzp_live_SFsR0f1WkY5r0J";
 
 // Villa pricing data (fetched from backend)
 let villaPricing = null;
