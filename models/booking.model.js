@@ -116,4 +116,7 @@ const bookingSchema = new Schema(
   { timestamps: true },
 );
 
+//every booking auto deletes after 45 days
+bookingSchema.index({ checkOut: 1 }, { expireAfterSeconds: 3888000 }); // 45*24*60*60
+
 export const Booking = mongoose.model("Booking", bookingSchema);
