@@ -1,6 +1,6 @@
 // admin-login.js
 
-const API_BASE_URL = "http://localhost:4000/api";
+const API_BASE_URL = "https://anudinakuteera.com/api";
 
 const loginForm = document.getElementById("loginForm");
 const otpForm = document.getElementById("otpForm");
@@ -138,7 +138,9 @@ async function checkAuth() {
 
 // Custom cursor – same effect as main page
 function initCustomCursor() {
-  const hasFinPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const hasFinPointer = window.matchMedia(
+    "(hover: hover) and (pointer: fine)",
+  ).matches;
   if (!hasFinPointer) return;
 
   const cursorDot = document.querySelector(".pointer-dot");
@@ -147,7 +149,10 @@ function initCustomCursor() {
   if (!cursorDot || !cursorGlow || !cursorTrail) return;
 
   document.body.classList.add("custom-cursor-enabled");
-  let mouseX = 0, mouseY = 0, trailX = 0, trailY = 0;
+  let mouseX = 0,
+    mouseY = 0,
+    trailX = 0,
+    trailY = 0;
 
   document.addEventListener("mousemove", (e) => {
     mouseX = e.clientX;
@@ -168,12 +173,20 @@ function initCustomCursor() {
   animateTrail();
 
   const interactive = "a, button, input, select, label";
-  document.addEventListener("mouseenter", (e) => {
-    if (e.target.matches(interactive)) cursorGlow.classList.add("active");
-  }, true);
-  document.addEventListener("mouseleave", (e) => {
-    if (e.target.matches(interactive)) cursorGlow.classList.remove("active");
-  }, true);
+  document.addEventListener(
+    "mouseenter",
+    (e) => {
+      if (e.target.matches(interactive)) cursorGlow.classList.add("active");
+    },
+    true,
+  );
+  document.addEventListener(
+    "mouseleave",
+    (e) => {
+      if (e.target.matches(interactive)) cursorGlow.classList.remove("active");
+    },
+    true,
+  );
 }
 
 // Password visibility toggle (icon inside field)
@@ -197,7 +210,10 @@ if (passwordInput && togglePasswordBtn) {
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => { checkAuth(); initCustomCursor(); });
+  document.addEventListener("DOMContentLoaded", () => {
+    checkAuth();
+    initCustomCursor();
+  });
 } else {
   checkAuth();
   initCustomCursor();
