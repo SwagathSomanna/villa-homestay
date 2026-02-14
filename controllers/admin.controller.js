@@ -1,4 +1,5 @@
 import { Booking } from "../models/booking.model.js";
+import { Villa } from "../models/villa.model.js";
 import { PricingRule } from "../models/pricingRule.model.js";
 
 function parseDateOnly(str) {
@@ -176,16 +177,11 @@ export const createBlockedDates = async (req, res) => {
   try {
     const { checkIn, checkOut, targetType, floorId, roomId, reason } = req.body;
 
-    if (!checkIn || !checkOut || !targetType) {
-      return res.status(400).json({
-        message: "Missing required fields: checkIn, checkOut, targetType",
-      });
-    }
-
     const parsedCheckIn = parseDateOnly(checkIn);
     const parsedCheckOut = parseDateOnly(checkOut);
     const today = parseDateOnly(new Date().toISOString().slice(0, 10));
 
+    // Validations
     if (parsedCheckIn >= parsedCheckOut) {
       return res
         .status(400)
@@ -231,7 +227,33 @@ export const createBlockedDates = async (req, res) => {
       });
     }
 
-    // Create blocked booking (adults must be >= 1 per schema)
+    // Get base price for the blocked target
+    const villa = await Villa.findOne();
+    if (!villa) {
+      return res.status(500).json({ message: "Villa configuration not found" });
+    }
+
+    let basePrice = 0;
+
+    if (targetType === "villa") {
+      basePrice = villa.price;
+    } else if (targetType === "floor") {
+      const floor = villa.floors.find((f) => f.floorId === floorId);
+      basePrice = floor ? floor.price : 0;
+    } else if (targetType === "room") {
+      const floor = villa.floors.find((f) =>
+        f.rooms.some((r) => r.roomId === roomId),
+      );
+      const room = floor ? floor.rooms.find((r) => r.roomId === roomId) : null;
+      basePrice = room ? room.price : 0;
+    }
+
+    // Calculate number of nights
+    const nights = Math.ceil(
+      (parsedCheckOut - parsedCheckIn) / (1000 * 60 * 60 * 24),
+    );
+
+    // Create blocked booking with required pricing fields
     const blockedBooking = await Booking.create({
       guest: {
         name: "BLOCKED",
@@ -247,7 +269,19 @@ export const createBlockedDates = async (req, res) => {
       checkIn: parsedCheckIn,
       checkOut: parsedCheckOut,
       status: "blocked",
-      paymentId: reason || "Admin blocked dates",
+
+      pricing: {
+        basePrice: basePrice, // Base price per night
+        finalPrice: basePrice, // No modifiers for blocked dates
+        totalPrice: basePrice * nights, // Total for blocked period
+        paidAmount: 0, // No payment for blocked dates
+        remainingAmount: 0, // No payment needed
+        appliedRules: [], // No pricing rules for blocked dates
+        nightBreakdown: [], // Optional: can leave empty for blocked dates
+      },
+
+      // Store reason in razorpayOrderId field (since no payment for blocked dates)
+      razorpayOrderId: reason || "Admin blocked dates",
     });
 
     return res.status(201).json({
