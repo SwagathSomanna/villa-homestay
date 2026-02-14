@@ -168,7 +168,11 @@ h6 {
 .hero-video-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, rgba(0, 0, 0, 0.6), rgba(15, 15, 15, 0.4));
+  background: linear-gradient(
+    120deg,
+    rgba(0, 0, 0, 0.6),
+    rgba(15, 15, 15, 0.4)
+  );
   pointer-events: none;
 }
 
@@ -343,16 +347,29 @@ main {
   background: var(--bg);
 }
 
+/* .boutique-suites-box { */
+/*   display: grid; */
+/*   grid-template-columns: 1fr 1fr; */
+/*   max-width: 1200px; */
+/*   margin: 0 auto; */
+/*   height: calc(100vh - 2rem); */
+/*   max-height: 900px; */
+/*   overflow: hidden; */
+/*   background: var(--card); */
+/*   border-radius: 2rem; */
+/*   box-shadow: */
+/*     0 24px 60px rgba(0, 0, 0, 0.08), */
+/*     0 0 0 1px rgba(31, 29, 26, 0.06); */
+/* } */
+
 .boutique-suites-box {
   display: grid;
   grid-template-columns: 1fr 1fr;
   max-width: 1200px;
   margin: 0 auto;
-  height: calc(100vh - 2rem);
-  max-height: 900px;
-  overflow: hidden;
   background: var(--card);
   border-radius: 2rem;
+  overflow: hidden;
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.08),
     0 0 0 1px rgba(31, 29, 26, 0.06);
@@ -365,16 +382,23 @@ main {
   padding: 1rem;
   background: var(--bg);
   overflow: hidden;
+  aspect-ratio: 4 / 5;
 }
+
+/* .boutique-suites-image { */
+/*   width: 100%; */
+/*   height: 100%; */
+/*   max-width: 100%; */
+/*   max-height: 100%; */
+/*   object-fit: contain; */
+/*   object-position: center; */
+/*   display: block; */
+/* } */
 
 .boutique-suites-image {
   width: 100%;
   height: 100%;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  object-position: center;
-  display: block;
+  object-fit: cover; /* KEY CHANGE */
 }
 
 .boutique-suites-content {
@@ -387,7 +411,7 @@ main {
 
 .boutique-suites-text {
   width: 100%;
-  max-width: 520px;
+  max-width: 480px;
 }
 
 .boutique-suites-text .eyebrow {
@@ -1115,7 +1139,9 @@ fieldset {
   margin: 0 auto;
   border-radius: 1.25rem;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--line);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.08),
+    0 0 0 1px var(--line);
   background: var(--card);
 }
 
@@ -1165,7 +1191,9 @@ fieldset {
   .map-preview {
     max-width: 100%;
     border-radius: 1.25rem;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--line);
+    box-shadow:
+      0 16px 40px rgba(0, 0, 0, 0.08),
+      0 0 0 1px var(--line);
   }
   .map-preview img {
     height: 280px;
@@ -1643,12 +1671,12 @@ footer a {
     object-fit: cover;
     object-position: center 65%;
   }
-  
+
   /* Better text rendering on mobile */
   .hero h1 {
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
-  
+
   .lead {
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   }
@@ -1794,7 +1822,7 @@ footer a {
   body {
     font-size: 16px;
   }
-  
+
   .hero h1 {
     font-weight: 600;
   }
