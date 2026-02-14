@@ -28,8 +28,9 @@ app.use(
 );
 
 connectDB().then(() => {
-  app.listen(process.env.PORT || PORT, () => {
-    console.log("server is running at port", process.env.PORT || PORT);
+  const port = process.env.PORT || PORT;
+  app.listen(port, "0.0.0.0", () => {
+    console.log("Server running at port", port);
   });
 });
 
