@@ -23,7 +23,7 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
     const accessToken = userInfo.accessToken;
     const bookingId =
       userInfo.bookingId || accessToken.substring(0, 8).toUpperCase();
-    const accommodation = userInfo.accommodation || "Entire Villa";
+    const accommodation = userInfo.targetType || "Entire Villa";
     const totalAmount = userInfo.totalAmount || "As per booking";
 
     const html = `

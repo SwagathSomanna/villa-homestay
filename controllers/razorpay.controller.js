@@ -106,7 +106,6 @@ async function handlePaymentCaptured(payload) {
 
     console.log("Booking confirmed:", booking._id);
 
-    // TODO: Send confirmation email to guest | done
     await sendConfirmationMailToGuest(booking);
     await sendConfirmationMailToAdmin(booking);
   } catch (error) {

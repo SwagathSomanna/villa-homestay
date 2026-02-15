@@ -352,7 +352,7 @@ export const bookVilla = async (req, res) => {
     });
 
     const order = await razorpay.orders.create({
-      amount: amountToPay * 100, // ✅ Convert RUPEES to PAISE here
+      amount: amountToPay * 100, // Convert RUPEES to PAISE here
       currency: "INR",
       receipt: `receipt_${accessToken.substring(0, 10)}`,
     });
