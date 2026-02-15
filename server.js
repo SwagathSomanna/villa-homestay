@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: "http://localhost:4000",
     credentials: true,
   }),
 );
@@ -59,25 +59,32 @@ app.use("/api/admin", adminLoginRouter);
 app.use("/api/admin", adminRouter);
 
 /////////////test ///////
-// import { sendPaymentFailedEmail } from "./utils/resend.util.js";
-// const mockBooking = {
-//   _id: "6985dd5a63e8bfd8dbf49489",
+// import { Booking } from "./models/booking.model.js";
+// import { rooms, floors } from "./constants.js";
+// const test = async () => {
+//   try {
+//     const orderId = "order_SGGwPN6IMD9EHW";
+//     const userInfo = await Booking.findOne({ razorpayOrderId: orderId });
+//     console.log(userInfo);
 //
-//   guest: {
-//     name: "Rahul Sharma",
-//     email: "sathwikthanmay4@gmail.com",
-//     adults: 2,
-//     children: 1,
-//   },
+//     const accommodation = userInfo.targetType || "Entire Villa";
+//     const totalAmount = userInfo.pricing.paidAmount;
+//     let targetName = null;
 //
-//   checkIn: new Date("2026-02-11"),
-//   checkOut: new Date("2026-02-12"),
+//     if (accommodation === "floor") {
+//       targetName = floors[userInfo.floorId];
+//     } else if (accommodation === "room") {
+//       console.log(rooms);
+//       console.log(rooms[userInfo.roomId]);
+//       targetName = rooms[userInfo.roomId];
+//     }
 //
-//   pricing: {
-//     totalPrice: 4500,
-//   },
+//     console.log(accommodation, totalAmount, targetName);
+//   } catch (error) {
+//     console.log(error);
+//   }
 // };
 //
-// sendPaymentFailedEmail(mockBooking).then(() => {
-//   console.log("mail set");
+// test().then(() => {
+//   console.log("testcalled");
 // });

@@ -88,8 +88,10 @@ async function handlePaymentCaptured(payload) {
     const payment = payload.payment.entity;
     const orderId = payment.order_id;
     const paymentId = payment.id;
+    const amountPaid = payment.amount / 100; // Convert paise to rupees
 
     console.log("Payment captured:", paymentId, "for order:", orderId);
+    console.log("Amount paid:", amountPaid);
 
     // Find booking by Razorpay order ID
     const booking = await Booking.findOne({ razorpayOrderId: orderId });
@@ -99,15 +101,31 @@ async function handlePaymentCaptured(payload) {
       return;
     }
 
-    // Update booking to paid status
+    const previousPaidAmount = booking.pricing?.paidAmount || 0;
+    const totalPrice = booking.pricing?.totalPrice || 0;
+
+    // Update booking with payment details
     booking.status = "paid";
-    booking.paymentId = paymentId;
+    booking.razorpayPaymentId = paymentId;
+
+    booking.pricing.paidAmount = previousPaidAmount + amountPaid;
+    booking.pricing.remainingAmount = totalPrice - booking.pricing.paidAmount;
+
     await booking.save();
 
-    console.log("Booking confirmed:", booking._id);
+    // console.log("=== BOOKING PAYMENT UPDATE ===");
+    // console.log("Booking ID:", booking._id);
+    // console.log("Total Price:", totalPrice);
+    // console.log("Amount Just Paid:", amountPaid);
+    // console.log("Total Paid So Far:", booking.pricing.paidAmount);
+    // console.log("Remaining Amount:", booking.pricing.remainingAmount);
+    // console.log("Status:", booking.status);
 
+    // Send confirmation emails
     await sendConfirmationMailToGuest(booking);
     await sendConfirmationMailToAdmin(booking);
+
+    console.log("Confirmation emails sent for booking:", booking._id);
   } catch (error) {
     console.error("Error handling payment captured:", error);
   }

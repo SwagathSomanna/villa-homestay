@@ -12,7 +12,6 @@ const formatDate = (date) =>
 import { rooms, floors } from "../constants.js";
 export const sendConfirmationMailToGuest = async (userInfo) => {
   try {
-    // console.log(userInfo, "userinfo log at resend");
     const name = userInfo.guest.name;
     const email = userInfo.guest.email;
     const phone = userInfo.guest.phone || "N/A";
