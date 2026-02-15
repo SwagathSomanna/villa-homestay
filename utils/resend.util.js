@@ -9,6 +9,7 @@ const formatDate = (date) =>
     year: "numeric",
   });
 
+import { rooms, floors } from "../constants.js";
 export const sendConfirmationMailToGuest = async (userInfo) => {
   try {
     // console.log(userInfo, "userinfo log at resend");
@@ -25,6 +26,13 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
       userInfo.bookingId || accessToken.substring(0, 8).toUpperCase();
     const accommodation = userInfo.targetType || "Entire Villa";
     const totalAmount = userInfo.pricing.paidAmount || "As per booking";
+    let targetName = null;
+
+    if (accommodation === "floor") {
+      targetName = floors[userInfo.floorId];
+    } else if (accommodation === "room") {
+      targetName = rooms[userInfo.roomId];
+    }
 
     const html = `
       <!DOCTYPE html>
@@ -375,7 +383,7 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
                 </tr>
                 <tr>
                   <td>Accommodation Booked</td>
-                  <td>${accommodation}</td>
+                  <td>${accommodation}, ${targetName}</td>
                 </tr>
                 <tr>
                   <td>Total Amount Paid</td>
@@ -432,7 +440,7 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
               <div class="contact-title">For Cancellations or Assistance</div>
               <div class="contact-item">
                 <span class="contact-label">Admin Contact Name:</span>
-                <span>Anudina Kuteera Admin</span>
+                <span>Deena B P</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">Phone:</span>
@@ -496,6 +504,15 @@ export const sendConfirmationMailToAdmin = async (userinfo) => {
     const target = userinfo.targetType;
     const checkIn = formatDate(userinfo.checkIn);
     const checkOut = formatDate(userinfo.checkOut);
+    const accommodation = userinfo.targetType || "Entire Villa";
+
+    let targetName = null;
+
+    if (accommodation === "floor") {
+      targetName = floors[userinfo.floorId];
+    } else if (accommodation === "room") {
+      targetName = rooms[userinfo.roomId];
+    }
 
     const html = `
       <!DOCTYPE html>
@@ -609,6 +626,14 @@ export const sendConfirmationMailToAdmin = async (userinfo) => {
               <div class="detail-row">
                 <span class="detail-label">Guest Phone:</span>
                 <span class="detail-value">${userinfo.guest.phone || "N/A"}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Accommodation Details:</span>
+                <span class="detail-value">${accommodation || "N/A"}, ${targetName}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Amount Paid:</span>
+                <span class="detail-value">${userinfo.pricing.paidAmount}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">Check-in:</span>

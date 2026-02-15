@@ -1,8 +1,17 @@
 export const VILLA_NAME = "Anudina Kuteera";
 export const PORT = 4000;
 export const TARGET_TYPE = ["floor", "villa", "room"];
-export const FLOORS = ["F1", "F2"];
-export const ROOMS = ["R1", "R2"];
+export const rooms = {
+  r1: "Robusta",
+  r2: "Arabica",
+  r3: "Excelsa",
+  r4: "Liberica",
+};
+
+export const floors = {
+  f1: "Ground Floor - Robusta + Arabica",
+  f2: "Top Floor - Excelsa + Liberica",
+};
 export const GUEST_LIMITS = {
   villa: {
     total: 18,
