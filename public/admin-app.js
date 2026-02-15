@@ -35,7 +35,6 @@ async function checkAuth() {
 //logout
 document.getElementById("logoutBtn").addEventListener("click", async () => {
   try {
-    console.log(";ogout clocked");
     await fetch(`${API_BASE_URL}/admin/logout`, {
       method: "POST", // better than GET for logout
       credentials: "include",
@@ -169,7 +168,6 @@ function updateStats() {
 function renderBookings() {
   const tbody = document.getElementById("bookingsTableBody");
 
-  // API already returns filtered results; use allBookings as-is
   const filteredBookings = allBookings;
 
   if (filteredBookings.length === 0) {
@@ -188,23 +186,32 @@ function renderBookings() {
       const children = booking.guest?.children || 0;
       const total = booking.pricing?.totalPrice || 0;
 
+      // ✅ Get reason only for blocked bookings
+      const reason =
+        booking.status === "blocked" ? booking.razorpayOrderId : null;
+
       return `
       <tr>
         <td>
           <strong>${guestName}</strong>
-          ${booking.guest?.email ? `<br><small>${booking.guest.email}</small>` : ""}
-          ${booking.guest?.phone ? `<br><small>${booking.guest.phone}</small>` : ""}
+          ${booking.guest?.email && booking.status !== "blocked" ? `<br><small>${booking.guest.email}</small>` : ""}
+          ${booking.guest?.phone && booking.status !== "blocked" ? `<br><small>${booking.guest.phone}</small>` : ""}
+          ${reason ? `<br><small class="text-muted">Reason: ${reason}</small>` : ""}
         </td>
         <td>${getBookingTypeText(booking)}</td>
         <td>${formatDate(booking.checkIn)}</td>
         <td>${formatDate(booking.checkOut)}</td>
-        <td>${adults}A ${children > 0 ? `+ ${children}C` : ""}</td>
-        <td><span class="badge ${booking.status}">${booking.status}</span></td>
-        <td>${formatCurrency(total)}</td>
+        <td>${booking.status === "blocked" ? "-" : `${adults}A ${children > 0 ? `+ ${children}C` : ""}`}</td>
+        <td>
+          <span class="badge ${booking.status}">${booking.status}</span>
+        </td>
+        <td>${booking.status === "blocked" ? "-" : formatCurrency(total)}</td>
         <td>
           <div class="action-buttons">
-            <button class="btn success" onclick="editBooking('${booking._id}')">Edit</button>
-            <button class="btn danger" onclick="deleteBooking('${booking._id}', '${guestName}')">Cancel</button>
+            ${booking.status !== "blocked" ? `<button class="btn success" onclick="editBooking('${booking._id}')">Edit</button>` : ""}
+            <button class="btn danger" onclick="deleteBooking('${booking._id}', '${guestName}')">
+              ${booking.status === "blocked" ? "Unblock" : "Cancel"}
+            </button>
           </div>
         </td>
       </tr>
