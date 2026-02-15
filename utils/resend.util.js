@@ -24,7 +24,7 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
     const bookingId =
       userInfo.bookingId || accessToken.substring(0, 8).toUpperCase();
     const accommodation = userInfo.targetType || "Entire Villa";
-    const totalAmount = userInfo.totalAmount || "As per booking";
+    const totalAmount = userInfo.pricing.paidAmount || "As per booking";
 
     const html = `
       <!DOCTYPE html>
