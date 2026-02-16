@@ -25,7 +25,7 @@ export const sendConfirmationMailToGuest = async (userInfo) => {
       userInfo.bookingId || accessToken.substring(0, 8).toUpperCase();
     const accommodation = userInfo.targetType || "Entire Villa";
     const totalAmount = userInfo.pricing.paidAmount || "As per booking";
-    let targetName = null;
+    let targetName = "Entire Villa";
 
     if (accommodation === "floor") {
       targetName = floors[userInfo.floorId];
@@ -511,7 +511,13 @@ export const sendConfirmationMailToAdmin = async (userinfo) => {
       targetName = floors[userinfo.floorId];
     } else if (accommodation === "room") {
       targetName = rooms[userinfo.roomId];
+    } else if (accommodation === "villa") {
+      targetName = "Entire Villa";
     }
+
+    const totalPrice = userinfo.pricing?.totalPrice || 0;
+    const paidAmount = userinfo.pricing?.paidAmount || 0;
+    const remainingAmount = userinfo.pricing?.remainingAmount || 0;
 
     const html = `
       <!DOCTYPE html>
@@ -570,6 +576,7 @@ export const sendConfirmationMailToAdmin = async (userinfo) => {
             background: #f5f9f7;
             padding: 20px;
             border-radius: 8px;
+            margin-bottom: 20px;
           }
           
           .detail-row {
@@ -591,6 +598,33 @@ export const sendConfirmationMailToAdmin = async (userinfo) => {
           .detail-value {
             color: #2d5a54;
           }
+
+          .payment-section {
+            background: #fff9e6;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+            margin-bottom: 20px;
+          }
+
+          .payment-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+          }
+
+          .payment-total {
+            font-weight: bold;
+            font-size: 16px;
+            padding-top: 10px;
+            border-top: 2px solid #f39c12;
+            margin-top: 10px;
+          }
+
+          .remaining-highlight {
+            color: #f39c12;
+            font-weight: bold;
+          }
           
           .footer {
             background: #f5f9f7;
@@ -610,7 +644,7 @@ export const sendConfirmationMailToAdmin = async (userinfo) => {
           
           <div class="content">
             <div class="alert-box">
-              <strong>Property Type:</strong> ${target}
+              <strong>Booking Type:</strong> ${targetName}
             </div>
             
             <div class="details">
@@ -619,20 +653,12 @@ export const sendConfirmationMailToAdmin = async (userinfo) => {
                 <span class="detail-value">${userinfo.guest.name}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Guest Email:</span>
+                <span class="detail-label">Email:</span>
                 <span class="detail-value">${userinfo.guest.email}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Guest Phone:</span>
+                <span class="detail-label">Phone:</span>
                 <span class="detail-value">${userinfo.guest.phone || "N/A"}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Accommodation Details:</span>
-                <span class="detail-value">${accommodation || "N/A"}, ${targetName}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Amount Paid:</span>
-                <span class="detail-value">${userinfo.pricing.paidAmount}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">Check-in:</span>
@@ -650,11 +676,55 @@ export const sendConfirmationMailToAdmin = async (userinfo) => {
                 <span class="detail-label">Children:</span>
                 <span class="detail-value">${userinfo.guest.children || 0}</span>
               </div>
+              <div class="detail-row">
+                <span class="detail-label">Access Token:</span>
+                <span class="detail-value">${userinfo.accessToken}</span>
+              </div>
             </div>
+
+            ${
+              remainingAmount > 0
+                ? `
+            <div class="payment-section">
+              <h3 style="margin-bottom: 15px; color: #2d7a62;">💰 Payment Details</h3>
+              <div class="payment-row">
+                <span class="detail-label">Total Booking Amount:</span>
+                <span class="detail-value">₹${totalPrice.toLocaleString("en-IN")}</span>
+              </div>
+              <div class="payment-row">
+                <span class="detail-label">Amount Paid (Deposit):</span>
+                <span class="detail-value">₹${paidAmount.toLocaleString("en-IN")}</span>
+              </div>
+              <div class="payment-row payment-total">
+                <span class="detail-label">Remaining Amount:</span>
+                <span class="remaining-highlight">₹${remainingAmount.toLocaleString("en-IN")}</span>
+              </div>
+              <p style="margin-top: 15px; font-size: 12px; color: #5a7f7a;">
+                ⚠️ Guest needs to pay remaining amount at check-in
+              </p>
+            </div>
+            `
+                : `
+            <div class="payment-section" style="background: #d4edda; border-left-color: #27ae60;">
+              <h3 style="margin-bottom: 15px; color: #27ae60;">✅ Payment Complete</h3>
+              <div class="payment-row payment-total">
+                <span class="detail-label">Total Amount Paid:</span>
+                <span class="detail-value" style="color: #27ae60;">₹${paidAmount.toLocaleString("en-IN")}</span>
+              </div>
+              <p style="margin-top: 15px; font-size: 12px; color: #155724;">
+                ✓ Booking is fully paid
+              </p>
+            </div>
+            `
+            }
           </div>
           
           <div class="footer">
-            Action required: Review and prepare for guest arrival
+            ${
+              remainingAmount > 0
+                ? ` Action required: Collect ₹${remainingAmount.toLocaleString("en-IN")} at check-in`
+                : "No payment collection needed - Fully paid"
+            }
           </div>
         </div>
       </body>
@@ -662,9 +732,9 @@ export const sendConfirmationMailToAdmin = async (userinfo) => {
     `;
 
     const data = await resend.emails.send({
-      from: "Anudinakuteera Support <support@mail.anudinakuteera.com>",
+      from: "Anudina Kuteera <support@mail.anudinakuteera.com>",
       to: process.env.ADMIN_EMAIL,
-      subject: "📬 New Booking Information",
+      subject: `📬 New Booking - ${userinfo.guest.name} (${checkIn})`,
       html,
     });
 
