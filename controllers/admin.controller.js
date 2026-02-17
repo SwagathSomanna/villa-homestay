@@ -1,6 +1,7 @@
 import { Booking } from "../models/booking.model.js";
 import { Villa } from "../models/villa.model.js";
 import { PricingRule } from "../models/pricingRule.model.js";
+import { sendCancellationMailToGuest } from "../utils/resend.util.js";
 
 function parseDateOnly(str) {
   const [y, m, d] = str.split("-").map(Number);
@@ -161,6 +162,9 @@ export const deleteBooking = async (req, res) => {
     } else {
       booking.status = "cancelled";
       await booking.save();
+
+      await sendCancellationMailToGuest(booking);
+      console.log("Cancellation email sent for booking:", booking._id, "to", booking.guest?.email);
 
       return res.status(200).json({
         message: "Booking cancelled successfully",

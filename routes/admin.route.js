@@ -18,7 +18,7 @@ router.get("/bookings", verifyJWT, getBooking); // Get all bookings
 router.patch("/bookings/:bookingId", verifyJWT, updateBooking); // Update booking
 router.delete("/bookings/:bookingId", verifyJWT, deleteBooking); // Cancel/delete booking
 router.post("/blocked-dates", verifyJWT, createBlockedDates); // Block dates
-router.get("/filterBookings/", verifyJWT, filterBookings);
+router.get("/filterBookings", verifyJWT, filterBookings);
 router.post("/logout", verifyJWT, async (req, res) => {
   try {
     res.status(200).clearCookie("accessToken").json({ message: "okay" });

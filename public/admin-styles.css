@@ -896,6 +896,28 @@ textarea.form-control {
 /* ============================================
    RESPONSIVE
    ============================================ */
+
+/* Tablet / iPad: consistent padding and alignment with mobile and desktop */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .admin-header-content {
+    padding: 0 1.5rem;
+  }
+
+  .admin-main .container {
+    padding: 0 1.5rem;
+  }
+
+  .admin-main {
+    padding: 2rem 0;
+  }
+
+  .card,
+  .admin-form {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .admin-header-content {
     flex-direction: column;
