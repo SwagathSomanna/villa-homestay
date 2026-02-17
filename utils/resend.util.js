@@ -822,6 +822,132 @@ export const sendPaymentFailedEmail = async (booking) => {
   });
 };
 
+export const sendCancellationMailToGuest = async (userInfo) => {
+  try {
+    const name = userInfo.guest?.name || "Guest";
+    const email = userInfo.guest?.email;
+    if (!email) return null;
+
+    const checkIn = formatDate(userInfo.checkIn);
+    const checkOut = formatDate(userInfo.checkOut);
+    const accommodation = userInfo.targetType || "Entire Villa";
+    let targetName = "Entire Villa";
+    if (accommodation === "floor") {
+      targetName = floors[userInfo.floorId];
+    } else if (accommodation === "room") {
+      targetName = rooms[userInfo.roomId];
+    }
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f9f7 0%, #e8f3f0 100%);
+            color: #2d5a54;
+            line-height: 1.6;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(45, 90, 84, 0.12);
+          }
+          .header {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+          }
+          .header h1 { font-size: 28px; margin-bottom: 5px; font-weight: 600; }
+          .header p { font-size: 14px; opacity: 0.9; }
+          .content { padding: 40px 30px; }
+          .greeting { font-size: 16px; color: #2d5a54; margin-bottom: 20px; }
+          .intro-text { font-size: 15px; color: #2d5a54; margin-bottom: 30px; }
+          .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #2d7a62;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0ebe8;
+          }
+          .details-table { width: 100%; border-collapse: collapse; }
+          .details-table tr { border-bottom: 1px solid #e0ebe8; }
+          .details-table td { padding: 12px 0; font-size: 14px; color: #2d5a54; }
+          .details-table td:first-child { font-weight: 600; color: #2d7a62; width: 50%; }
+          .details-table td:last-child { text-align: right; }
+          .contact-box {
+            background: linear-gradient(135deg, rgba(74, 159, 127, 0.05), rgba(232, 243, 240, 0.5));
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4a9f7f;
+            margin-top: 25px;
+          }
+          .contact-title { font-weight: 700; color: #2d7a62; margin-bottom: 12px; font-size: 15px; }
+          .footer {
+            background: linear-gradient(135deg, #e8f3f0 0%, #f5f9f7 100%);
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #d4e8e3;
+            font-size: 13px;
+            color: #5a7f7a;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Booking Cancelled</h1>
+            <p>Your booking at Anudina Kuteera has been cancelled</p>
+          </div>
+          <div class="content">
+            <div class="greeting">Dear <strong>${name}</strong>,</div>
+            <div class="intro-text">
+              This is to confirm that your booking at Anudina Kuteera, Coorg has been cancelled as requested.
+            </div>
+            <div class="section-title">Cancelled booking details</div>
+            <table class="details-table">
+              <tr><td>Property</td><td>Anudina Kuteera, Coorg</td></tr>
+              <tr><td>Check-in Date</td><td>${checkIn}</td></tr>
+              <tr><td>Check-out Date</td><td>${checkOut}</td></tr>
+              <tr><td>Accommodation</td><td>${targetName}</td></tr>
+            </table>
+            <div class="contact-box">
+              <div class="contact-title">For refund or any queries</div>
+              <p style="font-size: 14px; color: #2d5a54;">Please contact us at <a href="mailto:anudinakuteera23@gmail.com" style="color: #4a9f7f;">anudinakuteera23@gmail.com</a> or call <a href="tel:+919972253584" style="color: #4a9f7f;">+91 9972253584</a>.</p>
+            </div>
+          </div>
+          <div class="footer">
+            <strong>Anudina Kuteera</strong><br/>support@mail.anudinakuteera.com
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const data = await resend.emails.send({
+      from: "Anudinakuteera Support <support@mail.anudinakuteera.com>",
+      to: [email],
+      reply_to: "anudinakuteera23@gmail.com",
+      subject: "Booking Cancelled - Anudina Kuteera, Coorg",
+      html,
+    });
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const sendAdminOTPEmail = async (email, otp) => {
   const html = `
   <html>

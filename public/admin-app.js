@@ -72,6 +72,12 @@ function formatCurrency(amount) {
   return `₹${amount.toLocaleString("en-IN")}`;
 }
 
+/** Escape a string for safe use inside a single-quoted JS string in an onclick attribute */
+function escapeForOnclick(str) {
+  if (str == null) return "";
+  return String(str).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
 function getBookingTypeText(booking) {
   if (booking.targetType === "villa") return "Entire Villa";
   if (booking.targetType === "floor") {
@@ -208,8 +214,8 @@ function renderBookings() {
         <td>${booking.status === "blocked" ? "-" : formatCurrency(total)}</td>
         <td>
           <div class="action-buttons">
-            ${booking.status !== "blocked" ? `<button class="btn success" onclick="editBooking('${booking._id}')">Edit</button>` : ""}
-            <button class="btn danger" onclick="deleteBooking('${booking._id}', '${guestName}')">
+            ${booking.status !== "blocked" ? `<button class="btn success" onclick="editBooking('${escapeForOnclick(booking._id)}')">Edit</button>` : ""}
+            <button class="btn danger" onclick="deleteBooking('${escapeForOnclick(booking._id)}', '${escapeForOnclick(guestName)}', ${booking.status === "blocked"})">
               ${booking.status === "blocked" ? "Unblock" : "Cancel"}
             </button>
           </div>
@@ -285,33 +291,32 @@ document
 // ============================================================================
 // DELETE BOOKING
 // ============================================================================
-window.deleteBooking = async function (bookingId, guestName) {
-  if (
-    !confirm(`Are you sure you want to cancel the booking for ${guestName}?`)
-  ) {
+window.deleteBooking = async function (bookingId, guestName, isBlocked) {
+  const action = isBlocked ? "unblock these dates" : "cancel the booking for " + guestName;
+  if (!confirm(`Are you sure you want to ${action}?`)) {
     return;
   }
 
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/admin/bookings/${bookingId}?permanent=true`,
-      {
-        method: "DELETE",
-        credentials: "include",
-      },
-    );
+    const url = isBlocked
+      ? `${API_BASE_URL}/admin/bookings/${bookingId}?permanent=true`
+      : `${API_BASE_URL}/admin/bookings/${bookingId}`;
+    const response = await fetch(url, {
+      method: "DELETE",
+      credentials: "include",
+    });
 
     const data = await response.json();
 
     if (response.ok) {
-      showAlert("Booking cancelled successfully");
+      showAlert(isBlocked ? "Dates unblocked successfully" : "Booking cancelled successfully");
       loadBookings();
     } else {
-      showAlert(data.message || "Failed to cancel booking", "error");
+      showAlert(data.message || (isBlocked ? "Failed to unblock" : "Failed to cancel booking"), "error");
     }
   } catch (error) {
-    console.error("Error cancelling booking:", error);
-    showAlert("Failed to cancel booking", "error");
+    console.error("Error:", error);
+    showAlert(isBlocked ? "Failed to unblock dates" : "Failed to cancel booking", "error");
   }
 };
 
@@ -376,11 +381,11 @@ function renderPricingRules() {
         <td><span class="badge ${rule.isActive ? "active" : "inactive"}">${rule.isActive ? "Active" : "Inactive"}</span></td>
         <td>
           <div class="action-buttons">
-            <button class="btn success" onclick="editPricingRule('${rule._id}')">Edit</button>
-            <button class="btn ${rule.isActive ? "warning" : "success"}" onclick="togglePricingRule('${rule._id}', ${!rule.isActive})">
+            <button class="btn success" onclick="editPricingRule('${escapeForOnclick(rule._id)}')">Edit</button>
+            <button class="btn ${rule.isActive ? "warning" : "success"}" onclick="togglePricingRule('${escapeForOnclick(rule._id)}', ${!rule.isActive})">
               ${rule.isActive ? "Deactivate" : "Activate"}
             </button>
-            <button class="btn danger" onclick="deletePricingRule('${rule._id}', '${rule.name}')">Delete</button>
+            <button class="btn danger" onclick="deletePricingRule('${escapeForOnclick(rule._id)}', '${escapeForOnclick(rule.name)}')">Delete</button>
           </div>
         </td>
       </tr>
