@@ -66,6 +66,7 @@ A full-stack booking platform for **Anudina Kuteera**, a villa homestay in Coorg
 │   ├── admin-login.html         # Admin OTP login
 │   ├── admin.html               # Admin dashboard
 │   ├── sitemap.xml              # XML sitemap for search engines
+│   ├── robots.txt               # Crawler directives for SEO
 │   ├── app.js                   # Main frontend logic
 │   ├── admin-app.js             # Admin dashboard logic
 │   ├── admin-login.js           # Admin login logic
@@ -154,6 +155,7 @@ The server seeds the database automatically on first run (when `SEED_VALUES=true
 | Admin Login     | `http://localhost:<PORT>/admin-login.html`|
 | Admin Dashboard | `http://localhost:<PORT>/admin.html`      |
 | Sitemap         | `http://localhost:<PORT>/sitemap.xml`     |
+| Robots          | `http://localhost:<PORT>/robots.txt`      |
 
 ---
 
@@ -286,6 +288,7 @@ Admins can create pricing rules that adjust base prices:
 
 - Set `NODE_ENV=production` and use `npm start` (no file watcher overhead).
 - Update the `<loc>` URLs in `public/sitemap.xml` to your production domain (e.g. `https://yourdomain.com`) before deploying.
+- `public/robots.txt` allows all crawlers (including Googlebot, GPTBot, and Gemini) and points them to the sitemap.
 - Place the app behind a reverse proxy (Nginx, Caddy, etc.) for TLS termination.
 - Configure the Razorpay webhook URL to point to `/api/payment/razorpay-webhook` on your domain.
 - Set `CORS_ORIGIN` to your production domain.
