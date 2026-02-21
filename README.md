@@ -2,7 +2,7 @@
 
 A full-stack booking platform for **Anudina Kuteera**, a villa homestay in Coorg, Karnataka. Guests can browse rooms, check real-time availability, get dynamic price quotes, and pay a 50 % deposit online via Razorpay. An admin dashboard lets the property owner manage bookings, block dates, and configure seasonal pricing rules.
 
----
+----
 
 ## Table of Contents
 
